@@ -784,6 +784,9 @@ export function rankMatches(
     return dropSharedPrimitives(finalists, reachability);
 }
 
+/**
+ * Find the source element behind a clicked preview element, trying the build stamp first and falling back to structural and text matching.
+ */
 export function locateElement(
     index: ProjectIndex,
     signature: ElementSignature,
