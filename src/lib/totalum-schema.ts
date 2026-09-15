@@ -527,6 +527,9 @@ export function filesOf(value: unknown): StoredFile[] {
 
 const IMAGE_EXTENSIONS = ["png", "jpg", "jpeg", "gif", "webp", "avif", "svg", "bmp", "ico"];
 
+/**
+ * Whether a stored file can be shown as an image, by declared type or by extension.
+ */
 export function isImageFile(file: StoredFile): boolean {
     if (file.type === "image") return true;
     const extension = file.name.split(".").pop()?.toLowerCase() ?? "";
