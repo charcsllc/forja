@@ -1425,7 +1425,7 @@ export default function WorkspacePage() {
                   className="flex-1 min-w-0"
                 />
                 <button className="p-1 rounded text-ink-3 hover:text-ink shrink-0" title="Refresh preview" aria-label="Refresh preview" onClick={() => { fetchProject(); setPreviewKey((k) => k + 1); }}><RefreshCw className="w-3.5 h-3.5" /></button>
-                {previewUrl && <a href={previewUrl} target="_blank" rel="noopener noreferrer" className="p-1 rounded text-ink-3 hover:text-ink shrink-0"><ExternalLink className="w-3.5 h-3.5" /></a>}
+                {previewUrl && <a href={previewUrl} target="_blank" rel="noopener noreferrer" title="Open in a new tab" aria-label="Open preview in a new tab" className="p-1 rounded text-ink-3 hover:text-ink shrink-0"><ExternalLink className="w-3.5 h-3.5" /></a>}
               </div>
             </div>
             {/*
