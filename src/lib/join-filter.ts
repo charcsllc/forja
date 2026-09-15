@@ -112,6 +112,9 @@ export interface JoinGroup {
 
 export type JoinNode = JoinRule | JoinGroup;
 
+/**
+ * Type guard: is this filter node a group (AND/OR) rather than a rule?
+ */
 export function isGroup(node: JoinNode): node is JoinGroup {
     return node.kind === "group";
 }
