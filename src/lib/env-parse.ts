@@ -28,6 +28,9 @@ export interface ParsedEnvEntry {
 /** VCaaS/`process.env` naming: a letter or `_` first, then letters/digits/`_`. */
 export const SECRET_NAME_REGEX = /^[A-Za-z_][A-Za-z0-9_]*$/;
 
+/**
+ * Whether a string is an acceptable environment-variable name (`SECRET_NAME_REGEX`).
+ */
 export function isValidSecretName(name: string): boolean {
     return SECRET_NAME_REGEX.test(name);
 }
