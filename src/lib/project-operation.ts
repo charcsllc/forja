@@ -397,6 +397,9 @@ export function isOperationExpired(operation: ProjectOperation, now: number): bo
  */
 export type DeploymentAge = "ours" | "earlier" | "unknown";
 
+/**
+ * Whether a deployment record is `ours` (created after the operation started, with clock-skew grace), `earlier` (a previous deploy), or `unknown` (no usable date).
+ */
 export function classifyDeploymentAge(
     createdAt: string | null | undefined,
     operationStartedAt: number
