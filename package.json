@@ -4,6 +4,7 @@
   "scripts": {
     "dev": "next dev",
     "check-types-errors": "tsc --noEmit --skipLibCheck",
+    "typecheck": "tsc --noEmit",
     "start": "next start",
     "build": "next build",
     "test:serve": "TESTING_MODE=true PORT=3000 next start"
