@@ -381,6 +381,9 @@ const LABEL_FIELD_NAMES = ["name", "title", "label", "email", "handle", "slug", 
 
 const OBJECT_ID_RE = /^[a-f0-9]{24}$/i;
 
+/**
+ * A human-readable label for a record, from the table's label field or a sensible fallback.
+ */
 export function labelForRecord(
     table: DbTable | undefined,
     record: Record<string, unknown> | null | undefined
