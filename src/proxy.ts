@@ -1,3 +1,4 @@
+// The only place CORS and CSP are set; next.config.ts adds cache headers only.
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
