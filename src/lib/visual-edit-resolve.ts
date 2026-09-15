@@ -136,6 +136,9 @@ export function pristine(signature: ElementSignature, changes: VisualChange[]): 
     };
 }
 
+/**
+ * Resolve a batch of visual changes against the parsed project index (build stamps, then structural and text matching), reporting edits, unmapped changes and engine stats.
+ */
 export function resolveChangesDeep(files: Map<string, string>, changes: VisualChange[]): DeepResolution {
     const edits: ResolvedEdit[] = [];
     const unmapped: UnmappedChange[] = [];
