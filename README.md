@@ -351,6 +351,10 @@ No. Creable is a thin client in front of the Totalum API, which runs the agent a
 
 It is an independent open source alternative that follows the same workflow and layout. It does not use Lovable's code, name, logo or assets.
 
+### Is there a hosted version?
+
+The maintainers run a hosted builder on the same API at [totalum.app](https://www.totalum.app). This repository is the open source edition you can run, rebrand and sell yourself.
+
 ### How is this different from `ai-app-builder-open`?
 
 Same engine, different edition. [`ai-app-builder-open`](https://github.com/totalumlabs/ai-app-builder-open) is the neutral, white-label starter. Creable is the edition themed for people coming from Lovable, with a README and defaults aimed at that switch. Fixes flow between the two.
