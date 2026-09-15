@@ -391,6 +391,9 @@ export function runStartKey(projectId: string): string {
     return `totalum:run-start:${projectId}`;
 }
 
+/**
+ * The persisted start time of the current run for a project, or null when none is stored or storage is unavailable.
+ */
 export function readRunStart(projectId: string): number | null {
     try {
         const raw = window.localStorage.getItem(runStartKey(projectId));
