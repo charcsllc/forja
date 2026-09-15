@@ -97,7 +97,7 @@ Every item below works out of the box with one API key. No Supabase project, no 
 | **GitHub sync** | Connect a repository and push or pull in both directions. |
 | **Figma** | Paste a Figma frame link and the agent builds from the design. |
 | **Secrets** | Environment variables per project, managed from the UI. |
-| **Version history** | Every agent run is a restorable checkpoint with a diff viewer. |
+| **Version history** | Every agent run is a restorable checkpoint with a diff viewer. Restore any earlier version in one click. |
 | **Logs** | Development and production logs with search. |
 | **Export, import, duplicate** | Package a project into a code, restore it, or clone it. |
 | **Attachments** | Attach images, PDFs and SVGs to a prompt (up to 8 MB each), or paste a screenshot with ⌘/Ctrl+V. |
