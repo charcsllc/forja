@@ -92,7 +92,7 @@ Every item below works out of the box with one API key. No Supabase project, no 
 | **Code editor** | A Monaco (VS Code) editor over every generated file. Save, rebuild, done. |
 | **Integrated database** | Each app gets a managed database with no setup. Browse tables, filter, edit records, upload files, follow linked records, all from the builder. |
 | **Auth and storage** | Generated apps can use accounts, roles, sessions and file uploads without you provisioning anything. |
-| **Publish** | One click puts the app on a public URL with HTTPS. Progress and logs are shown while it deploys. |
+| **Publish** | One click puts the app on a public URL with HTTPS in about three minutes. Progress and logs are shown while it deploys. |
 | **Custom domains** | Attach your own domain with guided DNS steps and live status. |
 | **GitHub sync** | Connect a repository and push or pull in both directions. |
 | **Figma** | Paste a Figma frame link and the agent builds from the design. |
