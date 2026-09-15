@@ -189,6 +189,9 @@ const STOP_WORDS = new Set([
     "mi", "mis", "quiero", "necesito", "crear", "hacer", "construye", "aplicacion",
 ]);
 
+/**
+ * Suggest a project id from the first prompt: the first few meaningful words, slugified, or `fallback` when nothing usable remains.
+ */
 export function suggestProjectSlug(prompt: string, fallback = "my-app"): string {
     // ⚠️ `normalizeWords`, NOT `slugify` — slugify truncates to 35 characters, which
     // would cut the last word in half before we ever get to choose words.
