@@ -406,6 +406,9 @@ export function readRunStart(projectId: string): number | null {
     }
 }
 
+/**
+ * Persist the start time of a run so a reload resumes the progress bar at the right point.
+ */
 export function writeRunStart(projectId: string, at: number): void {
     try {
         window.localStorage.setItem(runStartKey(projectId), String(at));
