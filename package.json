@@ -1,6 +1,6 @@
 {
   "name": "lovable-alternative",
-  "description": "Buildable: open source, self-hosted Lovable alternative. Prompt → full-stack Next.js app with hosting, database, auth, visual editor, GitHub sync and custom domains. MIT.",
+  "description": "Creable: open source, self-hosted Lovable alternative. Prompt → full-stack Next.js app with hosting, database, auth, visual editor, GitHub sync and custom domains. MIT.",
   "scripts": {
     "dev": "next dev",
     "check-types-errors": "tsc --noEmit --skipLibCheck",

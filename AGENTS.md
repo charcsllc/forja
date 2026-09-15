@@ -1,6 +1,6 @@
-# AGENTS.md — Buildable (lovable-alternative)
+# AGENTS.md — Creable (lovable-alternative)
 
-Buildable is an open source (MIT) Lovable alternative: a user types a prompt, an AI agent
+Creable is an open source (MIT) Lovable alternative: a user types a prompt, an AI agent
 builds a full-stack Next.js app, the user previews it live, edits it visually or in code,
 and publishes it. **This repo is only the builder UI.** Everything heavy (the coding agent,
 sandboxes, hosting, database, deploys, custom domains, GitHub sync) is done by the

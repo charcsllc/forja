@@ -1,12 +1,12 @@
-# Buildable: Open Source Lovable Alternative
+# Creable: Open Source Lovable Alternative
 
-**Buildable is an open source Lovable alternative you can self-host, rebrand and resell.** Describe an app in a chat box, watch an AI agent build a real **full-stack Next.js application with its own database** in a live preview, edit it visually or in code, and publish it to a public URL with hosting, auth, file storage and a custom domain. MIT licensed. One API key to run.
+**Creable is an open source Lovable alternative you can self-host, rebrand and resell.** Describe an app in a chat box, watch an AI agent build a real **full-stack Next.js application with its own database** in a live preview, edit it visually or in code, and publish it to a public URL with hosting, auth, file storage and a custom domain. MIT licensed. One API key to run.
 
 - **Same workflow as Lovable.** Prompt, preview, iterate, publish. The interface follows the layout Lovable users already know.
 - **Better output than Lovable for search.** Every app is a server-rendered Next.js project with an integrated database, not a client-side React bundle, so what you ship is crawlable by Google and by AI search engines from day one.
 - **Yours to run and sell.** Add sign-up and login, put your brand on it, charge for it, or drop the whole AI app-builder capability into the SaaS you already have. All of it is supported by the [Totalum API](https://www.totalum.app/whitelabel).
 
-> Buildable is an independent open source project. It is not affiliated with, endorsed by or connected to Lovable Labs Incorporated. "Lovable" is a trademark of its owner, used here only to describe what this project is an alternative to.
+> Creable is an independent open source project. It is not affiliated with, endorsed by or connected to Lovable Labs Incorporated. "Lovable" is a trademark of its owner, used here only to describe what this project is an alternative to.
 
 <div align="center">
 
@@ -18,11 +18,11 @@
 [![White-label](https://img.shields.io/badge/white--label-ready-1f55f1)](https://www.totalum.app/whitelabel)
 [![GitHub stars](https://img.shields.io/github/stars/totalumlabs/lovable-alternative?style=flat&color=eab308)](https://github.com/totalumlabs/lovable-alternative/stargazers)
 
-[Quick start](#quick-start-five-minutes) · [Lovable vs Buildable](#lovable-vs-buildable-vs-other-open-source-ai-app-builders) · [Resell or embed it](#resell-it-white-label-it-or-put-it-inside-your-own-saas) · [Better SEO than Lovable](#better-seo-than-lovable-server-rendered-nextjs-with-the-database-built-in) · [Migrating from Lovable](#migrating-from-lovable) · [FAQ](#faq-open-source-lovable-alternatives)
+[Quick start](#quick-start-five-minutes) · [Lovable vs Creable](#lovable-vs-creable-vs-other-open-source-ai-app-builders) · [Resell or embed it](#resell-it-white-label-it-or-put-it-inside-your-own-saas) · [Better SEO than Lovable](#better-seo-than-lovable-server-rendered-nextjs-with-the-database-built-in) · [Migrating from Lovable](#migrating-from-lovable) · [FAQ](#faq-open-source-lovable-alternatives)
 
 <br/>
 
-<img src=".github/assets/buildable-demo.gif" alt="Demo of Buildable, an open source Lovable alternative: typing a prompt on the home page, naming the project, then the workspace with the AI chat on the left, the live preview of the generated Next.js app on the right, the code explorer, the phone preview and the Publish dialog" width="92%" />
+<img src=".github/assets/creable-demo.gif" alt="Demo of Creable, an open source Lovable alternative: typing a prompt on the home page, naming the project, then the workspace with the AI chat on the left, the live preview of the generated Next.js app on the right, the code explorer, the phone preview and the Publish dialog" width="92%" />
 
 <sub>Prompt on the home page, then the workspace: chat, live preview, code explorer, phone view and one-click publish.</sub>
 
@@ -32,12 +32,12 @@
 
 ## Contents
 
-- [What is Buildable?](#what-is-buildable)
+- [What is Creable?](#what-is-creable)
 - [Why look for an open source Lovable alternative?](#why-look-for-an-open-source-lovable-alternative)
 - [What you get](#what-you-get)
 - [Better SEO than Lovable](#better-seo-than-lovable-server-rendered-nextjs-with-the-database-built-in)
 - [Resell it, white-label it, or put it inside your own SaaS](#resell-it-white-label-it-or-put-it-inside-your-own-saas)
-- [Lovable vs Buildable vs other open source AI app builders](#lovable-vs-buildable-vs-other-open-source-ai-app-builders)
+- [Lovable vs Creable vs other open source AI app builders](#lovable-vs-creable-vs-other-open-source-ai-app-builders)
 - [Quick start](#quick-start-five-minutes)
 - [Environment variables](#environment-variables)
 - [Deploy it anywhere](#deploy-it-anywhere)
@@ -50,16 +50,16 @@
 
 ---
 
-## What is Buildable?
+## What is Creable?
 
-Buildable is an **open source AI app builder** in the style of Lovable: you chat, an AI coding agent writes the application, you watch it run in a live preview, refine it with follow-up prompts or by clicking on elements, and publish it with one click.
+Creable is an **open source AI app builder** in the style of Lovable: you chat, an AI coding agent writes the application, you watch it run in a live preview, refine it with follow-up prompts or by clicking on elements, and publish it with one click.
 
 What makes it a real alternative rather than a demo:
 
 - **It ships complete apps.** Each project is a full-stack Next.js codebase with an integrated database, authentication, file storage, secrets, hosting with HTTPS, a custom domain and logs. Not a front-end mock.
 - **It is the whole product, open source.** The home page, the workspace, the chat, the visual editor, the code editor, the database browser, the publish flow and the version history are all in this repository under the MIT license.
 - **It needs one key, not five vendors.** The coding agent, the sandboxes, the hosting, the databases, the deploys and the domains are provided by the [Totalum API](https://www.totalum.app/api). Clone, paste the key, run.
-- **It is meant to be rebranded and resold.** Buildable is a thin client in front of that API. Add your own login and billing, or embed it in your existing software, and you have an AI app builder under your own name. See [Resell it, white-label it](#resell-it-white-label-it-or-put-it-inside-your-own-saas).
+- **It is meant to be rebranded and resold.** Creable is a thin client in front of that API. Add your own login and billing, or embed it in your existing software, and you have an AI app builder under your own name. See [Resell it, white-label it](#resell-it-white-label-it-or-put-it-inside-your-own-saas).
 
 **Lovable**, for comparison, is a closed-source hosted product: you rent the builder per message, you cannot host it, you cannot modify it, and you cannot offer it to your own customers.
 
@@ -69,7 +69,7 @@ What makes it a real alternative rather than a demo:
 
 Lovable made "type a sentence, get an app" mainstream. It also made trade-offs that send people searching for a Lovable open source alternative:
 
-| The Lovable trade-off | What Buildable does instead |
+| The Lovable trade-off | What Creable does instead |
 | --- | --- |
 | You rent the builder, priced per message, inside someone else's product. | The builder is MIT code on your own server. Usage is billed by the API, with 50 free credits to start and no per-seat fee. |
 | No self-hosted Lovable exists. | Runs anywhere Next.js runs: Vercel, Docker, a VM, Railway, Render, Fly.io. |
@@ -83,7 +83,7 @@ Lovable made "type a sentence, get an app" mainstream. It also made trade-offs t
 
 Every item below works out of the box with one API key. No Supabase project, no Vercel account, no model keys.
 
-| Area | What Buildable does |
+| Area | What Creable does |
 | --- | --- |
 | **Prompt to app** | Describe the app in plain language. The agent writes a complete Next.js project and keeps iterating from follow-up messages. |
 | **Live preview** | The running app updates in the right-hand panel while the agent works. Desktop and phone viewports, route picker, refresh, open in a new tab. |
@@ -108,7 +108,7 @@ Every item below works out of the box with one API key. No Supabase project, no 
 
 Most AI app builders, Lovable included, generate a client-rendered single-page React app: an empty HTML shell plus a JavaScript bundle that draws the page in the browser. That is fine for an internal tool. It is a handicap for anything that needs to be found.
 
-**Buildable generates full-stack Next.js projects.** In practice that means:
+**Creable generates full-stack Next.js projects.** In practice that means:
 
 - **Server-rendered pages.** Google, Bing and AI crawlers receive complete HTML with the content already in it, not a blank shell waiting for JavaScript.
 - **Real metadata per page.** Titles, descriptions, Open Graph and Twitter cards, canonical URLs, sitemaps and robots rules are first-class in Next.js, and the agent uses them.
@@ -122,12 +122,12 @@ If the apps you build are landing pages, marketplaces, directories, blogs, shops
 
 ## Resell it, white-label it, or put it inside your own SaaS
 
-Buildable is not only a tool for yourself. It is a ready-made **AI app-builder capability you can offer to your own users**, because everything behind it (the coding agent, sandboxes, hosting, databases, deploys, domains, GitHub sync) is exposed by the [Totalum API](https://www.totalum.app/whitelabel) and works multi-tenant out of the box.
+Creable is not only a tool for yourself. It is a ready-made **AI app-builder capability you can offer to your own users**, because everything behind it (the coding agent, sandboxes, hosting, databases, deploys, domains, GitHub sync) is exposed by the [Totalum API](https://www.totalum.app/whitelabel) and works multi-tenant out of the box.
 
 Three ways people use it:
 
 1. **Launch your own Lovable-style product.** Add sign-up and login (Supabase, Clerk, Better Auth or your own), add billing (Stripe credit packs or plans), put your name and logo on it, and sell it. Every project belongs to the user who created it. The step-by-step is in [`AGENTS.md`](AGENTS.md#boilerplate-mode-login-with-supabase-payments-with-stripe).
-2. **Add an AI app builder to the SaaS you already run.** Deploy Buildable on a subdomain behind your existing login, or port the flow into your own stack: a server-side proxy that adds the API key, then launch a project, poll the agent, show the preview, deploy. One project per customer, ownership checked on every call. Details in [`AGENTS.md`](AGENTS.md#adding-an-ai-app-builder-to-an-existing-product-any-stack).
+2. **Add an AI app builder to the SaaS you already run.** Deploy Creable on a subdomain behind your existing login, or port the flow into your own stack: a server-side proxy that adds the API key, then launch a project, poll the agent, show the preview, deploy. One project per customer, ownership checked on every call. Details in [`AGENTS.md`](AGENTS.md#adding-an-ai-app-builder-to-an-existing-product-any-stack).
 3. **Ship client work faster as an agency.** Build under your brand, hand over the GitHub repository or keep hosting it for the client, on their domain.
 
 What the platform handles for you: isolated projects per tenant, hosting and SSL, databases and backups, the AI agent and its sandboxes, deploys, custom domains, GitHub and Figma integrations, logs and usage metering. What you own: the UI, the brand, the pricing and the customer relationship.
@@ -138,9 +138,9 @@ Read how the white-label offer works, including pricing and the reseller terms, 
 
 ---
 
-## Lovable vs Buildable vs other open source AI app builders
+## Lovable vs Creable vs other open source AI app builders
 
-| | **Buildable** | Lovable | dyad | bolt.diy | open-lovable |
+| | **Creable** | Lovable | dyad | bolt.diy | open-lovable |
 | --- | :---: | :---: | :---: | :---: | :---: |
 | License | MIT | Proprietary | Apache 2.0 + FSL | MIT | MIT |
 | Self-hostable builder UI | Yes | No | Runs locally | Yes | Yes |
@@ -153,7 +153,7 @@ Read how the white-label offer works, including pricing and the reseller terms, 
 | Resell under your brand, embed in your SaaS | Yes | No | No | Possible | Possible |
 | Sign-up, login and billing ready to add | Documented | n/a | No | No | No |
 
-dyad and bolt.diy are excellent local tools if you want to bring your own model keys and host what you build yourself. open-lovable is a website-cloning demo. Buildable is the option when you want the *hosted product experience* of Lovable, delivered as open source you control and can sell.
+dyad and bolt.diy are excellent local tools if you want to bring your own model keys and host what you build yourself. open-lovable is a website-cloning demo. Creable is the option when you want the *hosted product experience* of Lovable, delivered as open source you control and can sell.
 
 ---
 
@@ -216,7 +216,7 @@ npm run build
 npm start   # listens on $PORT, default 3000
 ```
 
-> **Read before going public.** Buildable ships with **no login**, on purpose, so you can add the auth that fits your stack. Until you do, anyone who can reach the URL can build apps on your key and spend your credits. The two guards to make real are in `src/app/api/vcaas/_shared.ts`, and the pages to protect are listed in `src/proxy.ts`. Running it locally or on a private network without auth is fine.
+> **Read before going public.** Creable ships with **no login**, on purpose, so you can add the auth that fits your stack. Until you do, anyone who can reach the URL can build apps on your key and spend your credits. The two guards to make real are in `src/app/api/vcaas/_shared.ts`, and the pages to protect are listed in `src/proxy.ts`. Running it locally or on a private network without auth is fine.
 
 ---
 
@@ -224,7 +224,7 @@ npm start   # listens on $PORT, default 3000
 
 You do not need to start from scratch.
 
-1. **Bring the source.** Lovable can push each project to GitHub. In Buildable, create a project, open the GitHub panel in the chat toolbar, connect that repository and ask the agent to port the app to this project's Next.js setup. It reads the code and rebuilds the screens, data model and logic, now server-rendered.
+1. **Bring the source.** Lovable can push each project to GitHub. In Creable, create a project, open the GitHub panel in the chat toolbar, connect that repository and ask the agent to port the app to this project's Next.js setup. It reads the code and rebuilds the screens, data model and logic, now server-rendered.
 2. **Or bring the brief.** Paste your original prompts, or attach screenshots of the Lovable app, and describe what to keep. The agent rebuilds it as a Next.js app with its own database.
 3. **Point the domain.** Once the new version is published, attach your custom domain from the Domain panel and follow the DNS steps.
 
@@ -236,7 +236,7 @@ Every project gets a fresh managed database, so move data with the database pane
 
 ```
 ┌───────────────────────────────────────────────────────────┐
-│  Buildable (this repo, Next.js 16)                        │
+│  Creable (this repo, Next.js 16)                        │
 │                                                           │
 │   pages & panels ──► src/lib/vcaas.ts (typed API client)  │
 │                          │ same-origin fetch              │
@@ -293,15 +293,15 @@ AGENTS.md                       # Map of the repo for AI coding agents and contr
 
 ### Is there an open source Lovable?
 
-Lovable itself is closed source. Buildable is an open source Lovable alternative under the MIT license: the same prompt-to-app workflow, the same layout, and you can read, modify, host and resell every line of the builder.
+Lovable itself is closed source. Creable is an open source Lovable alternative under the MIT license: the same prompt-to-app workflow, the same layout, and you can read, modify, host and resell every line of the builder.
 
 ### What is the best Lovable alternative that is open source?
 
-It depends on what you want. For a local desktop tool with your own model keys, look at dyad or bolt.diy. For the hosted-product experience of Lovable (apps that come with hosting, a database, auth and domains) delivered as open source you can self-host, embed and sell, Buildable is built for exactly that.
+It depends on what you want. For a local desktop tool with your own model keys, look at dyad or bolt.diy. For the hosted-product experience of Lovable (apps that come with hosting, a database, auth and domains) delivered as open source you can self-host, embed and sell, Creable is built for exactly that.
 
 ### Can I self-host a Lovable alternative?
 
-Yes. Buildable runs anywhere Next.js runs. Clone it, add one API key, run `npm run build && npm start`. The generated apps are hosted by the Totalum API, so you do not run sandboxes or databases yourself.
+Yes. Creable runs anywhere Next.js runs. Clone it, add one API key, run `npm run build && npm start`. The generated apps are hosted by the Totalum API, so you do not run sandboxes or databases yourself.
 
 ### Can I add sign-up and login and sell this as my own product?
 
@@ -309,7 +309,7 @@ Yes. That is the intended path. Add an auth provider and Stripe, make the two ow
 
 ### Can I add an AI app builder to my existing SaaS?
 
-Yes. Either deploy Buildable behind your existing login on a subdomain, or keep your own front end and mirror the flow: a key-holding proxy, launch a project, poll the agent, show the preview, deploy. The AI app-builder capabilities are all served by the [Totalum API](https://www.totalum.app/whitelabel), so your product does not have to run any of the infrastructure.
+Yes. Either deploy Creable behind your existing login on a subdomain, or keep your own front end and mirror the flow: a key-holding proxy, launch a project, poll the agent, show the preview, deploy. The AI app-builder capabilities are all served by the [Totalum API](https://www.totalum.app/whitelabel), so your product does not have to run any of the infrastructure.
 
 ### Does it build full-stack apps with a database?
 
@@ -317,7 +317,7 @@ Yes. Every project is a full-stack Next.js application with an integrated databa
 
 ### Is the SEO of the generated apps really better than Lovable's?
 
-Lovable's default output is a client-rendered React single-page app. Buildable's output is server-rendered Next.js with per-page metadata, sitemaps and streaming, so crawlers and AI search engines get real HTML. For content that needs to rank, that is a meaningful difference. See [Better SEO than Lovable](#better-seo-than-lovable-server-rendered-nextjs-with-the-database-built-in).
+Lovable's default output is a client-rendered React single-page app. Creable's output is server-rendered Next.js with per-page metadata, sitemaps and streaming, so crawlers and AI search engines get real HTML. For content that needs to rank, that is a meaningful difference. See [Better SEO than Lovable](#better-seo-than-lovable-server-rendered-nextjs-with-the-database-built-in).
 
 ### Is it really free?
 
@@ -337,7 +337,7 @@ It is an independent open source alternative that follows the same workflow and 
 
 ### How is this different from `ai-app-builder-open`?
 
-Same engine, different edition. [`ai-app-builder-open`](https://github.com/totalumlabs/ai-app-builder-open) is the neutral, white-label starter. Buildable is the edition themed for people coming from Lovable, with a README and defaults aimed at that switch. Fixes flow between the two.
+Same engine, different edition. [`ai-app-builder-open`](https://github.com/totalumlabs/ai-app-builder-open) is the neutral, white-label starter. Creable is the edition themed for people coming from Lovable, with a README and defaults aimed at that switch. Fixes flow between the two.
 
 ---
 
@@ -355,9 +355,9 @@ Found a problem? [Open an issue](https://github.com/totalumlabs/lovable-alternat
 
 ## License and trademarks
 
-Buildable is released under the [MIT License](LICENSE). Free for personal and commercial use, including reselling it under your own brand.
+Creable is released under the [MIT License](LICENSE). Free for personal and commercial use, including reselling it under your own brand.
 
-Lovable is a trademark of Lovable Labs Incorporated. Buildable is not affiliated with, sponsored by or endorsed by Lovable Labs. Other product names mentioned in the comparison belong to their respective owners.
+Lovable is a trademark of Lovable Labs Incorporated. Creable is not affiliated with, sponsored by or endorsed by Lovable Labs. Other product names mentioned in the comparison belong to their respective owners.
 
 ---
 
@@ -365,7 +365,7 @@ Lovable is a trademark of Lovable Labs Incorporated. Buildable is not affiliated
 
 **Open source Lovable alternative** · self-hosted AI app builder · prompt to full-stack Next.js app with an integrated database · white-label, resellable, embeddable in your SaaS · MIT
 
-If Buildable saves you a subscription, a star helps the next person find it.
+If Creable saves you a subscription, a star helps the next person find it.
 
 Runs on the [Totalum API](https://www.totalum.app/api) · [White-label program](https://www.totalum.app/whitelabel) · [Docs](https://www.totalum.app/docs) · [Get a free key](https://www.totalum.app/api)
 
