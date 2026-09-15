@@ -100,6 +100,7 @@ Every item below works out of the box with one API key. No Supabase project, no 
 | **Version history** | Every agent run is a restorable checkpoint with a diff viewer. |
 | **Logs** | Development and production logs with search. |
 | **Export, import, duplicate** | Package a project into a code, restore it, or clone it. |
+| **Attachments** | Attach images, PDFs and SVGs to a prompt (up to 8 MB each), or paste a screenshot with ⌘/Ctrl+V. |
 | **Run options** | Choose the model, the effort level and fast mode per prompt. |
 | **Multi-tenant** | Each project is isolated. Create one per user or per customer and put your own login in front. |
 
