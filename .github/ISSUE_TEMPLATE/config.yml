@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Question or idea
+    url: https://github.com/totalumlabs/lovable-alternative/discussions
+    about: Ask how to do something or discuss an idea before opening an issue.
+  - name: Totalum API docs
+    url: https://www.totalum.app/totalum-api.md
+    about: Everything the builder calls is documented here.
