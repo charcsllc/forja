@@ -343,6 +343,10 @@ The layout and the light, warm palette follow the conventions Lovable users know
 
 Full-stack Next.js web apps: SaaS MVPs, CRMs, dashboards, internal tools, marketplaces, booking systems, blogs, online stores, landing pages with a backend, and more. Each app has its own database and can use secrets for third-party APIs.
 
+### Does it work offline or with local models?
+
+No. Creable is a thin client in front of the Totalum API, which runs the agent and hosts the apps. For a local-first tool with your own model keys, dyad or bolt.diy are the better fit.
+
 ### Is this a Lovable clone?
 
 It is an independent open source alternative that follows the same workflow and layout. It does not use Lovable's code, name, logo or assets.
