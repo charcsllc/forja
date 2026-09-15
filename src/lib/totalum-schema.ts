@@ -109,6 +109,9 @@ export function fieldKindOf(property: DbProperty): FieldKind {
     }
 }
 
+/**
+ * Type guard for single- and multi-file field kinds.
+ */
 export function isFileKind(kind: FieldKind): kind is "file" | "multipleFile" {
     return kind === "file" || kind === "multipleFile";
 }
