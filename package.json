@@ -75,6 +75,10 @@
   },
   "homepage": "https://github.com/totalumlabs/lovable-alternative#readme",
   "license": "MIT",
+  "author": "Totalum Labs",
+  "bugs": {
+    "url": "https://github.com/totalumlabs/lovable-alternative/issues"
+  },
   "keywords": [
     "lovable-alternative",
     "open-source-lovable",
