@@ -1409,7 +1409,7 @@ export default function WorkspacePage() {
                 {/* ⭐ Logs open as a dialog from the address bar — the platform's placement. */}
                 <button onClick={() => setLogsOpen(true)} className="p-1 rounded shrink-0 text-ink-3 hover:text-ink" title={translate("workspace.logs.title")}><Terminal className="w-3.5 h-3.5" /></button>
                 <div className="h-3.5 w-px shrink-0 bg-hairline" />
-                <button onClick={() => setMobilePreview(!mobilePreview)} className="p-1 rounded text-ink-3 hover:text-ink shrink-0">{mobilePreview ? <Smartphone className="w-3.5 h-3.5" /> : <Monitor className="w-3.5 h-3.5" />}</button>
+                <button onClick={() => setMobilePreview(!mobilePreview)} title={mobilePreview ? "Desktop preview" : "Phone preview"} aria-label={mobilePreview ? "Desktop preview" : "Phone preview"} className="p-1 rounded text-ink-3 hover:text-ink shrink-0">{mobilePreview ? <Smartphone className="w-3.5 h-3.5" /> : <Monitor className="w-3.5 h-3.5" />}</button>
                 {/*
                   ⭐ THE ADDRESS BOX LISTS THE PROJECT'S OWN PAGES. It was a bare text
                   input, so reaching any page but `/` meant knowing its URL by heart.
