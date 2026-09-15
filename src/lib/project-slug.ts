@@ -91,6 +91,9 @@ export function isValidProjectSlug(slug: string): boolean {
  */
 export const ROUTABLE_SLUG_MAX_LENGTH = 63;
 
+/**
+ * A looser check for slugs that can at least be used in a URL, for links to projects created elsewhere.
+ */
 export function isRoutableProjectSlug(slug: string): boolean {
     if (!slug) return false;
     if (slug.length > ROUTABLE_SLUG_MAX_LENGTH) return false;
