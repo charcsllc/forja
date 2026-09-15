@@ -190,7 +190,7 @@ Visit [http://localhost:3000](http://localhost:3000), type what you want to buil
 2. During onboarding choose **Use the Totalum API**.
 3. Copy the key into `.env.local` as `TOTALUM_VCAAS_API_KEY`.
 
-The first 50 AI credits are free. That one key covers the agent, hosting, databases, sandboxes, deploys, domains and GitHub sync for every app you build.
+The first 50 AI credits are free, enough for the first few apps. That one key covers the agent, hosting, databases, sandboxes, deploys, domains and GitHub sync for every app you build.
 
 ---
 
