@@ -211,6 +211,9 @@ export function patchNextConfig(content: string): ConfigPatch {
 
 const CONFIG_PATHS = ["next.config.ts", "next.config.js"];
 
+/**
+ * Install the build-time source tags a project needs for precise visual editing, trying each known config path in turn.
+ */
 export async function installSourceTags(io: UpgradeIo): Promise<{ status: UpgradeStatus; configPath?: string }> {
     for (const configPath of CONFIG_PATHS) {
         const config = await io.read(configPath);
