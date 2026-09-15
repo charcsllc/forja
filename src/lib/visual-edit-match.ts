@@ -902,6 +902,9 @@ export interface SpanEdit {
 
 export type PlanFailure = "not-found" | "ambiguous" | "low-confidence" | "unsupported";
 
+/**
+ * Turn one visual change into a concrete source edit (file, range, replacement), or explain why it cannot be applied.
+ */
 export function planEdit(
     index: ProjectIndex,
     change: VisualChange,
