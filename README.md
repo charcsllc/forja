@@ -259,6 +259,7 @@ Three things worth knowing:
 
 - **Every Totalum call goes through one file.** The browser side is `src/lib/vcaas.ts`; the server half that holds the key is `src/lib/vcaas-server.ts`. To see how an endpoint is called, polled and error-handled, read there.
 - **Agent runs and deploys are asynchronous.** The UI polls status every 10 to 15 seconds and never assumes completion from the start response.
+- **The visual editor needs a same-origin preview.** While it is open, the project is served through `/api/preview/{projectId}` so the editor can script the document; normal viewing uses the direct URL.
 - **Credits belong to the operator.** All actions run on the key in your environment. When it runs out, the app says so once and links to the billing page. That message is for you, not your users. Remove it before you sell this.
 
 Full API reference, written for humans and AI coding assistants alike: [www.totalum.app/totalum-api.md](https://www.totalum.app/totalum-api.md). Browsable docs: [www.totalum.app/docs](https://www.totalum.app/docs). White-label and reseller program: [www.totalum.app/whitelabel](https://www.totalum.app/whitelabel).
