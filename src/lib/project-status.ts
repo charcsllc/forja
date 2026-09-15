@@ -220,6 +220,9 @@ export function getPreviewUrlField(detail: VcaasProject | null | undefined): Pre
         : DEFAULT_PREVIEW_FIELD;
 }
 
+/**
+ * The URL to frame for a project: the field named by `developmentUrlFieldToUse`, falling back to the temporal development URL.
+ */
 export function getPreviewUrl(detail: VcaasProject | null | undefined): string | null {
     if (!detail) return null;
 
