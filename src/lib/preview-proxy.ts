@@ -71,6 +71,9 @@ export function rewriteCss(css: string, base: string): string {
     );
 }
 
+/**
+ * Insert the visual-editor agent script into a proxied HTML document, right after the opening `<head>` tag (falling back to `<html>`, then `<body>`).
+ */
 export function injectAgent(html: string, base: string): string {
     const tag = AGENT_SCRIPT_TAG(base);
 
