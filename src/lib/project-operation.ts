@@ -359,6 +359,9 @@ export function parseOperation(raw: string | null | undefined, now: number): Pro
     return { kind, startedAt };
 }
 
+/**
+ * The persisted form of an in-flight operation: kind and start time only.
+ */
 export function serializeOperation(operation: ProjectOperation): string {
     return JSON.stringify({ kind: operation.kind, startedAt: operation.startedAt });
 }
