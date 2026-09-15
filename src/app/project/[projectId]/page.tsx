@@ -1390,7 +1390,7 @@ export default function WorkspacePage() {
             <button onClick={() => setOpenModal("versions")} className={`flex size-8 items-center justify-center rounded-full transition-colors shrink-0 bb-hairline bg-surface-2 text-ink-3 hover:text-ink hover:bg-muted`} title={translate("workspace.versions.title")}>
               <Clock className="w-3.5 h-3.5" />
             </button>
-            <button onClick={() => setChatCollapsed(!chatCollapsed)} className={`flex size-8 items-center justify-center rounded-full text-ink-3 hover:text-ink hover:bg-muted bb-hairline bg-surface-2 transition-colors shrink-0`}>
+            <button onClick={() => setChatCollapsed(!chatCollapsed)} title={chatCollapsed ? "Show chat" : "Hide chat"} aria-label={chatCollapsed ? "Show chat" : "Hide chat"} className={`flex size-8 items-center justify-center rounded-full text-ink-3 hover:text-ink hover:bg-muted bb-hairline bg-surface-2 transition-colors shrink-0`}>
               {chatCollapsed ? <PanelLeft className="w-3.5 h-3.5" /> : <PanelLeftClose className="w-3.5 h-3.5" />}
             </button>
           </div>
