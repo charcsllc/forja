@@ -108,6 +108,9 @@ const EMAIL_RE = /^[^\s@<>]+@[^\s@<>.]+\.[^\s@<>]+$/;
 
 export type LinkKind = "url" | "email" | null;
 
+/**
+ * Classify a cell value as a URL, an e-mail, a phone number or nothing linkable.
+ */
 export function linkKindOf(value: unknown): LinkKind {
     if (typeof value !== "string") return null;
     const trimmed = value.trim();
