@@ -40,7 +40,7 @@ links to the optional areas. Do not vendor a copy into this repo; link to it.
 ## Commands
 
 ```bash
-npm install                      # Node 20+
+npm install                      # Node 20+ (see .nvmrc)
 cp .env.example .env.local       # then set TOTALUM_VCAAS_API_KEY=tlm_sk_...
 npm run dev                      # http://localhost:3000
 npm run typecheck                # tsc --noEmit, the fast correctness gate
