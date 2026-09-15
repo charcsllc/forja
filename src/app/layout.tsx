@@ -15,6 +15,7 @@ import { BRAND } from "@/lib/brand";
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
+/* The favicon is `src/app/icon.svg`, picked up by Next automatically. */
 export const metadata: Metadata = {
   title: BRAND.metaTitle,
   description: BRAND.metaDescription,
