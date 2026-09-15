@@ -13,6 +13,7 @@ const nextConfig: NextConfig = {
   // during `next dev`). Compile/runtime errors are still surfaced.
   devIndicators: false,
   allowedDevOrigins: ["*"],
+  // The builder renders live project state; never let a proxy cache a page.
   async headers() {
     // Only cache-control headers here. CSP and CORS are handled exclusively in proxy.ts
     return [
