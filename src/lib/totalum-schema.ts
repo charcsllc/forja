@@ -116,6 +116,9 @@ export function isFileKind(kind: FieldKind): kind is "file" | "multipleFile" {
     return kind === "file" || kind === "multipleFile";
 }
 
+/**
+ * Type guard for single- and multi-select field kinds.
+ */
 export function isOptionsKind(kind: FieldKind): kind is "options" | "multipleOptions" {
     return kind === "options" || kind === "multipleOptions";
 }
