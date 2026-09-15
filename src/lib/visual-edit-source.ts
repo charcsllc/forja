@@ -476,6 +476,9 @@ function cacheKey(path: string, content: string): string {
     return `${path}:${content.length}:${hash}`;
 }
 
+/**
+ * Parse a TSX/JSX file into the element model the visual editor matches against. Results are cached by path and content.
+ */
 export function parseSourceFile(path: string, content: string): ParsedFile {
     const key = cacheKey(path, content);
     const cached = parseCache.get(key);
