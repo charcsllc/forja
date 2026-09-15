@@ -1,3 +1,5 @@
+# The builder itself has no public content; allow everything so previews and
+# published demos behind it are never blocked by mistake.
 User-agent: Googlebot
 Allow: /
 
