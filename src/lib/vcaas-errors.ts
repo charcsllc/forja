@@ -256,6 +256,9 @@ export interface VcaasErrorEnvelope {
     data: null;
 }
 
+/**
+ * Shape a normalized VCaaS error as the `{ ok: false, … }` envelope the client expects.
+ */
 export function toErrorEnvelope(normalized: NormalizedVcaasError): VcaasErrorEnvelope {
     return {
         ok: false,
