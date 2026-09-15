@@ -14,6 +14,7 @@
 [![Next.js 16](https://img.shields.io/badge/Next.js-16-000000?logo=next.js)](https://nextjs.org)
 [![React 19](https://img.shields.io/badge/React-19-149eca?logo=react)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![Node 20+](https://img.shields.io/badge/node-20%2B-339933?logo=node.js&logoColor=white)](.nvmrc)
 [![Self-hosted](https://img.shields.io/badge/self--hosted-yes-f97316)](#deploy-it-anywhere)
 [![White-label](https://img.shields.io/badge/white--label-ready-1f55f1)](https://www.totalum.app/whitelabel)
 [![GitHub stars](https://img.shields.io/github/stars/totalumlabs/lovable-alternative?style=flat&color=eab308)](https://github.com/totalumlabs/lovable-alternative/stargazers)
