@@ -157,6 +157,9 @@ export interface QueryOptionsInput {
     expand?: Record<string, unknown> | null;
 }
 
+/**
+ * Assemble paging, sorting, search and filters into a single `queryOptions` object. Querying is always server-side.
+ */
 export function buildQueryOptions({
     page,
     sortField,
