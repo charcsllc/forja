@@ -88,7 +88,7 @@ Every item below works out of the box with one API key. No Supabase project, no 
 | --- | --- |
 | **Prompt to app** | Describe the app in plain language. The agent writes a complete Next.js project and keeps iterating from follow-up messages. |
 | **Live preview** | The running app updates in the right-hand panel while the agent works. Desktop and phone viewports, route picker, refresh, open in a new tab. |
-| **Visual editing** | Click any element in the preview and change its text, size, colors or image. Edits are written back to the exact file and line. |
+| **Visual editing** | Click any element in the preview and change its text, size, colors or image. Edits are written back to the exact file and line. Desktop browsers only. |
 | **Code editor** | A Monaco (VS Code) editor over every generated file. Save, rebuild, done. |
 | **Integrated database** | Each app gets a managed database with no setup. Browse tables, filter, edit records, upload files, follow linked records, all from the builder. |
 | **Auth and storage** | Generated apps can use accounts, roles, sessions and file uploads without you provisioning anything. |
