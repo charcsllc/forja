@@ -134,6 +134,9 @@ function percentFor(steps: DomainStep[]): number {
     return Math.max(8, Math.round((earned / steps.length) * 100));
 }
 
+/**
+ * Turn a custom-domain record into the step list shown in the Domain panel (DNS, certificate, live) with a percent and tone. Null when no hostname is set.
+ */
 export function getDomainProgress(domain: VcaasDomain | null | undefined): DomainProgress | null {
     if (!domain?.hostname) return null;
 
