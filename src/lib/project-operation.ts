@@ -317,6 +317,9 @@ export function operationStorageKey(projectId: string): string {
  */
 export const CLOCK_SKEW_GRACE_MS = 60_000;
 
+/**
+ * Type guard for the long-operation kinds the banner knows how to describe.
+ */
 export function isOperationKind(value: unknown): value is ProjectOperationKind {
     return (
         typeof value === "string" &&
