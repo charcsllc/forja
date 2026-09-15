@@ -143,6 +143,9 @@ export function isPublished(detail: VcaasProject | null | undefined): boolean {
     return detail?.deployment?.status === "success";
 }
 
+/**
+ * Resolve a project's overall status plus the label, tone and description the UI shows for it.
+ */
 export function getProjectStatus(detail: VcaasProject | null | undefined): ProjectStatusInfo {
     const status = resolve(detail);
     return { status, ...INFO[status] };
