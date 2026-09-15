@@ -182,7 +182,7 @@ Then run it:
 npm run dev
 ```
 
-Visit [http://localhost:3000](http://localhost:3000), type what you want to build, and press Enter.
+Visit [http://localhost:3000](http://localhost:3000), type what you want to build, and press Enter. Shift+Enter adds a line break.
 
 ### Get an API key
 
