@@ -286,6 +286,7 @@ src/
 │  ├─ vcaas.ts                  # The API client (browser side)
 │  ├─ vcaas-server.ts           # The half that holds the key (server only)
 │  └─ visual-edit*.ts           # Matching a clicked element back to its source
+├─ proxy.ts                     # CORS / CSP boundary
 └─ app/globals.css              # Theme tokens (the Lovable-style warm light palette)
 AGENTS.md                       # Map of the repo for AI coding agents and contributors
 ```
