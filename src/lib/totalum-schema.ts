@@ -211,6 +211,9 @@ export function scalarFieldsOf(table: DbTable | undefined): DbProperty[] {
     );
 }
 
+/**
+ * A table's user-editable properties: everything except the system fields.
+ */
 export function editableFieldsOf(table: DbTable | undefined): DbProperty[] {
     if (!table?.properties) return [];
     return Object.values(table.properties).filter(p => !SYSTEM_FIELDS.has(p.name));
