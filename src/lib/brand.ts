@@ -17,6 +17,7 @@ export const BRAND = {
   promptPlaceholder: "Ask Creable to create a landing page for my…",
   /** `<title>` and `og:title`. */
   metaTitle: "Creable — Open Source Lovable Alternative",
+  /** Search snippet: keep under ~160 characters. */
   metaDescription:
     "Creable is an open source, self-hosted Lovable alternative. Describe an app, watch the AI build a full-stack Next.js app live, edit it visually, publish with one click.",
   repoUrl: "https://github.com/totalumlabs/lovable-alternative",
