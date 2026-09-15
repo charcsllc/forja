@@ -481,6 +481,9 @@ export function writeOperation(projectId: string, operation: ProjectOperation): 
     }
 }
 
+/**
+ * Forget the persisted operation once it has ended.
+ */
 export function clearOperation(projectId: string): void {
     try {
         window.localStorage.removeItem(operationStorageKey(projectId));
