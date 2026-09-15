@@ -139,6 +139,9 @@ export function emptyGroup(combinator: "and" | "or" = "and"): JoinGroup {
     return { id: nextNodeId("g"), kind: "group", combinator, children: [] };
 }
 
+/**
+ * A fresh rule node defaulting to the `contains` operator.
+ */
 export function emptyRule(field = "", via: string | null = null): JoinRule {
     return { id: nextNodeId("r"), kind: "rule", via, field, operator: "contains", value: "" };
 }
