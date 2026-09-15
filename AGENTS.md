@@ -48,7 +48,7 @@ npx tsc --noEmit --noUnusedLocals --noUnusedParameters   # import hygiene
 npm run build && npm start       # production build, run before any PR
 ```
 
-There is no test suite. Verification = typecheck + build + open the changed screen in a
+CI runs `tsc --noEmit` on every push and pull request (`.github/workflows/typecheck.yml`). There is no test suite. Verification = typecheck + build + open the changed screen in a
 browser with a real key. The key hits real projects and spends real credits: click through
 the UI, but do not fire publish / restore / pull / delete unless the task requires it.
 
