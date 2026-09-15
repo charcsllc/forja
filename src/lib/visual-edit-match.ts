@@ -62,6 +62,9 @@ export interface ProjectIndex {
     reachability: Map<string, Map<string, number>>;
 }
 
+/**
+ * Parse every source file once and index its JSX elements for matching.
+ */
 export function buildProjectIndex(files: Map<string, string>): ProjectIndex {
     const parsed = new Map<string, ParsedFile>();
     for (const [path, content] of files) parsed.set(path, parseSourceFile(path, content));
