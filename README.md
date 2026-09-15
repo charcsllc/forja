@@ -381,7 +381,7 @@ Found a problem? [Open an issue](https://github.com/totalumlabs/lovable-alternat
 
 ## License and trademarks
 
-Creable is released under the [MIT License](LICENSE). Free for personal and commercial use, including reselling it under your own brand.
+Creable is released under the [MIT License](LICENSE) (`SPDX-License-Identifier: MIT`). Free for personal and commercial use, including reselling it under your own brand.
 
 Lovable is a trademark of Lovable Labs Incorporated. Creable is not affiliated with, sponsored by or endorsed by Lovable Labs. Other product names mentioned in the comparison belong to their respective owners.
 
