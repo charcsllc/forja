@@ -11,7 +11,7 @@
 export const BRAND = {
   /** The product name, as shown in the header, titles and dialogs. */
   name: "Creable",
-  /** Short line under the hero heading. */
+  /** The hero heading on the home page. Keep it short: it is set at 48px. */
   tagline: "Build something you own",
   /** Placeholder of the main prompt box. */
   promptPlaceholder: "Ask Creable to create a landing page for my…",
