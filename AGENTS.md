@@ -43,7 +43,7 @@ links to the optional areas. Do not vendor a copy into this repo; link to it.
 npm install                      # Node 20+
 cp .env.example .env.local       # then set TOTALUM_VCAAS_API_KEY=tlm_sk_...
 npm run dev                      # http://localhost:3000
-npx tsc --noEmit                 # typecheck, the fast correctness gate
+npm run typecheck                # tsc --noEmit, the fast correctness gate
 npx tsc --noEmit --noUnusedLocals --noUnusedParameters   # import hygiene
 npm run build && npm start       # production build, run before any PR
 ```
