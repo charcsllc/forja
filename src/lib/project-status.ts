@@ -112,6 +112,9 @@ const BADGE_INFO: Record<ProjectBadge, Omit<ProjectBadgeInfo, "badge">> = {
     deployed: { tone: "brand", labelKey: "status.deployed", pulse: false },
 };
 
+/**
+ * The small status badge for a project card (published, building, sleeping…), or null when nothing is worth showing.
+ */
 export function getProjectBadge(detail: VcaasProject | null | undefined): ProjectBadgeInfo | null {
     if (!detail) return null;
 
