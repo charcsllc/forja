@@ -135,6 +135,9 @@ function normalizeWords(text: string): string {
         .replace(/^-+|-+$/g, "");
 }
 
+/**
+ * Lower-case, hyphenate and truncate free text into a project id candidate.
+ */
 export function slugify(text: string): string {
     if (!text) return "";
 
