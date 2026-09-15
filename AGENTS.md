@@ -192,7 +192,7 @@ See https://www.totalum.app/whitelabel for the program and pricing.
 
 Human contributors read `CONTRIBUTING.md`; issues and PRs use the templates under `.github/`.
 
-Small, single-purpose commits. Run `npm run build` before opening a PR. PR description: what changed, why, and how it was verified in the browser.
+Small, single-purpose commits. User-visible changes get a line in `CHANGELOG.md` under Unreleased. Run `npm run build` before opening a PR. PR description: what changed, why, and how it was verified in the browser.
 
 <!-- BEGIN:nextjs-agent-rules -->
 
