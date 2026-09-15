@@ -29,6 +29,9 @@ export const PAGE_SIZE = 25;
 export const PAGE_SIZE_OPTIONS = [25, 50, 100] as const;
 export type PageSize = (typeof PAGE_SIZE_OPTIONS)[number];
 
+/**
+ * Type guard for the page sizes the database grid offers.
+ */
 export function isPageSize(value: unknown): value is PageSize {
     return PAGE_SIZE_OPTIONS.includes(Number(value) as PageSize);
 }
