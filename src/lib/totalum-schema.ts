@@ -130,6 +130,9 @@ export interface FieldOption {
     color?: string;
 }
 
+/**
+ * The choices of an options field, or an empty list when the schema carries none.
+ */
 export function optionsOf(property: DbProperty): FieldOption[] {
     const list = extras<FieldOption[]>(property, "options");
     return Array.isArray(list) ? list : [];
