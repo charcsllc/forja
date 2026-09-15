@@ -365,6 +365,8 @@ Bug reports, panels, docs and ideas are all welcome.
 2. Read [`AGENTS.md`](AGENTS.md) for the layout and the rules that are not obvious from the code.
 3. Run `npx tsc --noEmit` and `npm run build`, open the changed screen with a real key, then open a pull request that says what changed, why, and how you verified it.
 
+The longer version is in [`CONTRIBUTING.md`](CONTRIBUTING.md). Security issues go through [`SECURITY.md`](SECURITY.md), not a public issue.
+
 Found a problem? [Open an issue](https://github.com/totalumlabs/lovable-alternative/issues).
 
 ---
