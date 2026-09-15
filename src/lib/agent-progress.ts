@@ -308,6 +308,9 @@ export interface StuckInput {
     isRunning: boolean;
 }
 
+/**
+ * True when a run has been going longer than `STUCK_AFTER_MS` with at most `STUCK_MAX_STEPS` build steps, so the UI can offer a hint instead of an endless spinner.
+ */
 export function looksStuck({ elapsedMs, stepCount, isRunning }: StuckInput): boolean {
     if (!isRunning) return false;
     if (elapsedMs < STUCK_AFTER_MS) return false;
