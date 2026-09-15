@@ -65,6 +65,9 @@ const OPERATORS: { value: FilterOperator; types: string[] }[] = [
     { value: "lte", types: ["number", "date"] },
 ];
 
+/**
+ * The filter operators available for a property type. Unknown types still get equality so a filter row is never empty.
+ */
 export function operatorsForType(propertyType: string): FilterOperator[] {
     const matches = OPERATORS.filter(op => op.types.includes(propertyType)).map(op => op.value);
     // An unknown/custom property type still needs equality, or its filter row is
