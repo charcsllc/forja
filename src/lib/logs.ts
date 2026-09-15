@@ -253,6 +253,9 @@ export function filterLines(lines: LogLine[], query: string): LogLine[] {
  */
 export const PROD_LOGS_WINDOW_DAYS = 3;
 
+/**
+ * Clamp a production-logs start date to the retention window so the API is never asked for logs it no longer holds.
+ */
 export function clampProdRange(from: Date, now: Date = new Date()): Date {
     const earliest = new Date(now.getTime() - PROD_LOGS_WINDOW_DAYS * 24 * 3600 * 1000);
     return from < earliest ? earliest : from;
