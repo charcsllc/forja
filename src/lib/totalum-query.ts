@@ -84,6 +84,9 @@ function coerce(value: string, propertyType?: string): string | number {
     return value;
 }
 
+/**
+ * Compile the grid's filter rules into the `_filter` document the API expects, coercing values by property type.
+ */
 export function buildFilter(
     rules: FilterRule[],
     propertiesByName: Record<string, DbProperty | undefined> = {}
