@@ -132,6 +132,9 @@ export function nextNodeId(prefix = "n"): string {
     return `${prefix}${sequence}`;
 }
 
+/**
+ * A fresh, childless group node with a unique id.
+ */
 export function emptyGroup(combinator: "and" | "or" = "and"): JoinGroup {
     return { id: nextNodeId("g"), kind: "group", combinator, children: [] };
 }
