@@ -6,6 +6,22 @@ and publishes it. **This repo is only the builder UI.** Everything heavy (the co
 sandboxes, hosting, database, deploys, custom domains, GitHub sync) is done by the
 **Totalum API** behind one API key.
 
+**What the generated apps are:** full-stack **Next.js** projects (server-rendered pages,
+API routes, per-page metadata, sitemaps) with an **integrated database**, auth, file
+storage and secrets, hosted with HTTPS and custom domains. That server-rendered output is
+the reason this README claims better SEO than Lovable, whose default output is a
+client-rendered React single-page app. Keep the claim honest: never describe the output
+as "React front end" or "static site".
+
+**This is a product you can resell.** The AI app-builder capabilities (agent, sandboxes,
+hosting, databases, deploys, domains, GitHub, Figma, logs) are all served by the Totalum
+API and work multi-tenant, so an operator can (a) add sign-up + login + billing and sell
+this under their own brand, or (b) embed the capability inside an existing SaaS or
+software product behind their own login. When writing copy or docs about this, link to
+the white-label program: https://www.totalum.app/whitelabel (pricing, reseller terms).
+The concrete steps are in "Boilerplate mode" and "Adding an AI app builder to an existing
+product" below.
+
 **Relationship to `totalumlabs/ai-app-builder-open`:** same engine, different edition.
 That repo is the neutral white-label starter; this one is themed after the Lovable layout
 and palette and its README targets people switching from Lovable. Logic fixes should be
@@ -131,6 +147,9 @@ https://api-accounts.totalum.app/api/v1/vcaas   ← documented at totalum.app/to
 
 ## Adding an AI app builder to an existing product (any stack)
 
+This repo is the reference implementation of the Totalum white-label offer
+(https://www.totalum.app/whitelabel).
+
 **A. Run it as-is beside your product.** Deploy on a subdomain (`builder.yourapp.com`), put your login in front, link to `/project/<id>`. Rebrand via `brand.ts`. Nothing else needs to change.
 
 **B. Port the flow into your own stack.** The UI is optional; the contract is not. Mirror three things:
@@ -139,6 +158,12 @@ https://api-accounts.totalum.app/api/v1/vcaas   ← documented at totalum.app/to
 3. **Tenancy** = one project per customer. Store `projectId ↔ tenant`, check it on every proxied `/projects/<id>/` path, filter `GET /projects` by your own table.
 
 ## Boilerplate mode: login with Supabase, payments with Stripe
+
+This is the "sell it under your brand" path: sign-up and login, a credit balance per
+user, Stripe to top it up, and every project tied to the user who created it. Once
+these steps are done the app is a resellable AI app builder with your name on it; the
+platform side (hosting, databases, agent, domains) is already handled by the Totalum API.
+See https://www.totalum.app/whitelabel for the program and pricing.
 
 **Login and database**
 1. `npm i @supabase/supabase-js @supabase/ssr`. Env: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` (server only).
