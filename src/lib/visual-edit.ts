@@ -740,6 +740,9 @@ export interface ResolutionResult {
  */
 export const AMBIGUITY_MARGIN = 10;
 
+/**
+ * Resolve a batch of visual changes to source edits, one file at a time, reporting the ones that could not be mapped.
+ */
 export function resolveChanges(
     files: Map<string, string>,
     changes: VisualChange[]
