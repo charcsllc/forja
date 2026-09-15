@@ -58,6 +58,9 @@ interface StoredAttachments {
     savedAt: number;
 }
 
+/**
+ * Storage key under which a project's pending composer attachments are kept.
+ */
 export function attachmentsKeyForProject(projectId: string): string {
     return `${KEY_PREFIX}${projectId}`;
 }
