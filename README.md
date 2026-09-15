@@ -230,7 +230,7 @@ You do not need to start from scratch.
 2. **Or bring the brief.** Paste your original prompts, or attach screenshots of the Lovable app, and describe what to keep. The agent rebuilds it as a Next.js app with its own database.
 3. **Point the domain.** Once the new version is published, attach your custom domain from the Domain panel and follow the DNS steps.
 
-Every project gets a fresh managed database, so move data with the database panel (file uploads and record editing are built in) or ask the agent to write an import route.
+If your Lovable project stored data in Supabase, export the tables you need as CSV first. Every project gets a fresh managed database, so move data with the database panel (file uploads and record editing are built in) or ask the agent to write an import route.
 
 ---
 
