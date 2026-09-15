@@ -67,6 +67,7 @@ gitignored. Never paste a `tlm_sk_` value into a tracked file, an issue or a PR.
 - `src/app/globals.css` — the theme tokens. Light, warm off-white surfaces, near-black
   text, one warm accent for primary actions, generous radii (`--radius` 0.75rem), soft
   shadows. Dark tokens exist for parity but the UI ships light-only, as Lovable does.
+- The README names the product from `brand.ts` by hand (`Creable`). Renaming the product means updating both, plus `package.json` and the GIF.
 - Layout conventions kept on purpose: home = centered prompt box with a suggestion row and
   the project gallery below; workspace = chat column left (~440px), preview right, header
   with project name, Preview/Code/Database toggle, address bar and Publish.
