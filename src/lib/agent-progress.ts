@@ -417,6 +417,9 @@ export function writeRunStart(projectId: string, at: number): void {
     }
 }
 
+/**
+ * Forget the persisted start time once a run has finished.
+ */
 export function clearRunStart(projectId: string): void {
     try {
         window.localStorage.removeItem(runStartKey(projectId));
