@@ -746,7 +746,7 @@ export default function DashboardPage() {
                 </select>
               </div>
 
-              <div className="bb-hairline flex h-9 items-center rounded-full bg-surface-2 p-1">
+              <div className="bb-hairline flex h-9 items-center rounded-full bg-surface-2 p-1" role="group" aria-label="View">
                 <button onClick={() => chooseView("cards")} title="Grid" aria-pressed={resolvedView === "cards"}
                   className={`flex size-7 items-center justify-center rounded-full transition-colors ${resolvedView === "cards" ? "bg-muted text-ink" : "text-ink-4 hover:text-ink-2"}`}>
                   <LayoutGrid className="size-3.5" />
