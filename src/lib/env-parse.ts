@@ -35,6 +35,9 @@ export function isValidSecretName(name: string): boolean {
     return SECRET_NAME_REGEX.test(name);
 }
 
+/**
+ * Parse `.env`-style text into name/value entries. Comments, blank lines and invalid names are counted in `skipped` rather than failing the whole paste.
+ */
 export function parseEnv(text: string): { entries: ParsedEnvEntry[]; skipped: number } {
     const entries: ParsedEnvEntry[] = [];
     let skipped = 0;
