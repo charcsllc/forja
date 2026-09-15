@@ -155,6 +155,9 @@ export interface FilterTarget {
     properties: DbProperty[];
 }
 
+/**
+ * The fields a filter can target for a table: its own fields plus those reachable through linked-record relations.
+ */
 export function filterTargetsFor(tables: DbTable[], table: DbTable | undefined): FilterTarget[] {
     if (!table) return [];
 
