@@ -457,6 +457,9 @@ export function shouldAdoptServerRebuild(
     return status === "rebuilding" && current === null;
 }
 
+/**
+ * Read the persisted in-flight operation for a project: null when none is stored, when it no longer parses, or when storage is unavailable.
+ */
 export function readOperation(projectId: string, now: number = Date.now()): ProjectOperation | null {
     try {
         return parseOperation(window.localStorage.getItem(operationStorageKey(projectId)), now);
