@@ -79,6 +79,9 @@ function normalise(html: string): string {
     return html.replace(/\s+/g, " ").toLowerCase();
 }
 
+/**
+ * Count the starter-template placeholder markers left in a preview document; a high count means the app has not been built yet.
+ */
 export function countPlaceholderMarkers(html: string): number {
     // The markers are written without spaces where the source has none; collapsing
     // whitespace in BOTH makes the comparison indifferent to formatting.
