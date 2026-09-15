@@ -46,6 +46,9 @@ function stripPrefix(path: string): string {
     return path.replace(/^[ab]\//, "");
 }
 
+/**
+ * Parse a unified diff into per-file hunks the DiffViewer can render. An empty or malformed input yields an empty list rather than throwing.
+ */
 export function parseDiff(raw: string): DiffFile[] {
     const files: DiffFile[] = [];
     if (!raw) return files;
