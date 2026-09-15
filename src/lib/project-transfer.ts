@@ -129,6 +129,9 @@ export function phaseIndex(phase: TransferPhase): number {
     return index;
 }
 
+/**
+ * Whether a transfer step is already behind the current phase. A failed or timed-out transfer completes nothing.
+ */
 export function isStepComplete(step: TransferPhase, current: TransferPhase): boolean {
     if (current === "failed" || current === "timeout") return false;
     return phaseIndex(current) > phaseIndex(step);
