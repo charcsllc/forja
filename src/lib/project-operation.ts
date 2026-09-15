@@ -470,6 +470,9 @@ export function readOperation(projectId: string, now: number = Date.now()): Proj
     }
 }
 
+/**
+ * Persist an in-flight operation so a reload can resume watching it.
+ */
 export function writeOperation(projectId: string, operation: ProjectOperation): void {
     try {
         window.localStorage.setItem(operationStorageKey(projectId), serializeOperation(operation));
