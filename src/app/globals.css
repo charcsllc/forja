@@ -1,0 +1,335 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+  ═══ THE THEME OF THIS EDITION ═══════════════════════════════════════════════════
+  A light, warm-neutral workspace in the spirit of the builders people already know:
+  off-white surfaces with a hair of warmth (oklch hue ≈107, chroma ≈0), near-black
+  text, ONE saturated blue for the primary action, hairline borders at low alpha
+  instead of solid gray lines, cards that float on layered soft shadows, and generous
+  radii (8px controls, 16px cards, 24px composers, 28px the hero prompt box).
+
+  The brand gradient (blue → pink → red → orange) lives ONLY in the hero wash and the
+  logo mark. It is never a button colour.
+*/
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-display: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  /* The blue. `bg-brand`, `text-brand`, `ring-brand/40` … */
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand-soft: var(--brand-soft);
+  /* Warm surface ramp: `bg-surface-depth` (page well) → `bg-surface-2` (cards). */
+  --color-surface-depth: var(--surface-depth);
+  --color-surface-base: var(--surface-base);
+  --color-surface-1: var(--surface-1);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-ink-4: var(--ink-4);
+  --color-hairline: var(--hairline);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-warning-subtle: var(--warning-subtle);
+  --color-warning-subtle-foreground: var(--warning-subtle-foreground);
+  --color-positive: var(--positive);
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: 1rem;
+  --text-2xs--letter-spacing: 0.01em;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.5rem;
+  --radius-4xl: 1.75rem;
+  --font-weight-medium: 480;
+  --font-weight-semibold: 600;
+  --tracking-display: -0.04em;
+  --shadow-card: 0 0 0 1px rgb(118 118 118 / 0.10), 0 1px 1px 0 rgb(118 118 118 / 0.07),
+    0 2px 5px 0 rgb(118 118 118 / 0.05), 0 4px 24px -8px rgb(118 118 118 / 0.10),
+    0 4px 34px -5px rgb(118 118 118 / 0.08);
+  --shadow-btn: 0 0 0 1px rgb(95 95 93 / 0.12), 0 4px 2px -3px rgb(95 95 93 / 0.10),
+    0 5px 10px -4px rgb(95 95 93 / 0.15);
+  --shadow-floating: 0 0 0 1px rgb(119 119 113 / 0.16), 0 8px 24px -8px rgb(0 0 0 / 0.12),
+    0 20px 48px -16px rgb(0 0 0 / 0.10);
+  --ease-out-cubic: cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+:root {
+  --radius: 0.75rem;
+
+  /* Warm neutrals */
+  --surface-depth: oklch(95.49% 0 107);
+  --surface-base: oklch(96.99% 0 107);
+  --surface-1: oklch(98.51% 0 107);
+  --surface-2: oklch(99.99% 0 107);
+  --ink: oklch(10% 0 0);
+  --ink-2: oklch(30% 0.001 107);
+  --ink-3: oklch(50% 0.001 107);
+  --ink-4: oklch(69% 0.001 107);
+  --hairline: oklch(85.12% 0 107 / 0.4);
+
+  /* The one accent */
+  --brand: oklch(52.43% 0.2396 264.41);
+  --brand-foreground: oklch(99% 0 0);
+  --brand-soft: oklch(52.43% 0.2396 264.41 / 0.12);
+
+  /* shadcn-style semantic tokens, mapped onto the ramp above */
+  --background: var(--surface-1);
+  --foreground: var(--ink);
+  --card: var(--surface-2);
+  --card-foreground: var(--ink);
+  --popover: var(--surface-2);
+  --popover-foreground: var(--ink);
+  /* Primary actions are near-black, like the reference. Blue is reserved for
+     `variant="brand"` (Publish, the active mode chip). */
+  --primary: oklch(0% 0 0 / 0.88);
+  --primary-foreground: oklch(98.51% 0 89.88);
+  --secondary: oklch(56.74% 0.009 106.68 / 0.10);
+  --secondary-foreground: var(--ink);
+  --muted: oklch(56.74% 0.009 106.68 / 0.10);
+  --muted-foreground: var(--ink-3);
+  --accent: oklch(56.74% 0.009 106.68 / 0.10);
+  --accent-foreground: var(--ink);
+  --destructive: oklch(58.53% 0.2203 26.56);
+  --border: var(--hairline);
+  --input: oklch(83.6% 0 107 / 0.5);
+  --ring: oklch(52.43% 0.2396 264.41 / 0.4);
+  --chart-1: var(--brand);
+  --chart-2: oklch(59.06% 0.2244 359.16);
+  --chart-3: oklch(58.01% 0.1819 40.04);
+  --chart-4: oklch(54.42% 0.1689 138.23);
+  --chart-5: oklch(58.99% 0.2523 294.88);
+  --sidebar: var(--surface-1);
+  --sidebar-foreground: var(--ink);
+  --sidebar-primary: var(--brand);
+  --sidebar-primary-foreground: oklch(99% 0 0);
+  --sidebar-accent: var(--muted);
+  --sidebar-accent-foreground: var(--ink);
+  --sidebar-border: var(--hairline);
+  --sidebar-ring: var(--ring);
+  --warning: oklch(58.01% 0.1819 40.04);
+  --warning-foreground: oklch(99% 0 0);
+  --warning-subtle: oklch(58.01% 0.1819 40.04 / 0.12);
+  --warning-subtle-foreground: oklch(45% 0.16 40.04);
+  --positive: oklch(54.42% 0.1689 138.23);
+  --ease-in-out-soft: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Chat panel */
+  --user-bubble: oklch(56.74% 0.009 106.68 / 0.10);
+  --textarea-bg: var(--surface-2);
+}
+
+/* Kept for parity with the copied components. The UI ships light-only. */
+.dark {
+  --surface-depth: oklch(20.42% 0.002 107);
+  --surface-base: oklch(23% 0.002 107);
+  --surface-1: oklch(24.74% 0.002 107);
+  --surface-2: oklch(27.2% 0.002 107);
+  --ink: oklch(100% 0 0);
+  --ink-2: oklch(90.95% 0.002 107);
+  --ink-3: oklch(72.34% 0.002 107);
+  --ink-4: oklch(56.74% 0.002 107);
+  --hairline: oklch(34.74% 0.004 107 / 0.4);
+  --brand-foreground: oklch(99% 0 0);
+  --brand-soft: oklch(52.43% 0.2396 264.41 / 0.2);
+  --background: var(--surface-1);
+  --foreground: var(--ink);
+  --card: var(--surface-2);
+  --card-foreground: var(--ink);
+  --popover: var(--surface-2);
+  --popover-foreground: var(--ink);
+  --primary: oklch(100% 0 0 / 0.96);
+  --primary-foreground: oklch(23.85% 0.004 106.68);
+  --secondary: oklch(56.74% 0.009 106.68 / 0.16);
+  --secondary-foreground: var(--ink);
+  --muted: oklch(56.74% 0.009 106.68 / 0.16);
+  --muted-foreground: var(--ink-3);
+  --accent: oklch(56.74% 0.009 106.68 / 0.16);
+  --accent-foreground: var(--ink);
+  --destructive: oklch(65% 0.2 26.56);
+  --border: var(--hairline);
+  --input: oklch(100% 0 0 / 0.12);
+  --ring: oklch(70.62% 0.1391 264.41 / 0.5);
+  --sidebar: var(--surface-1);
+  --sidebar-foreground: var(--ink);
+  --sidebar-accent: var(--muted);
+  --sidebar-accent-foreground: var(--ink);
+  --sidebar-border: var(--hairline);
+  --warning-subtle: oklch(58.01% 0.1819 40.04 / 0.2);
+  --warning-subtle-foreground: oklch(85% 0.1 60);
+  --user-bubble: oklch(56.74% 0.009 106.68 / 0.16);
+  --textarea-bg: var(--surface-2);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  [data-tabular] {
+    font-variant-numeric: tabular-nums;
+  }
+  html {
+    color-scheme: light;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-geist-sans), "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-feature-settings: "cv11", "ss01";
+  }
+  h1, h2, h3 {
+    letter-spacing: -0.02em;
+  }
+}
+
+html, body, input, textarea, select, button {
+  font-family: var(--font-geist-sans), "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+button {
+  cursor: pointer;
+}
+
+/* Hairline borders read as 0.5px on high-density screens, like the reference. */
+@media (min-resolution: 2x) {
+  .bb-hairline {
+    box-shadow: inset 0 0 0 0.5px var(--hairline);
+  }
+}
+@media (max-resolution: 1.99x) {
+  .bb-hairline {
+    box-shadow: inset 0 0 0 1px var(--hairline);
+  }
+}
+
+/*
+  ═══ THE HERO WASH ═════════════════════════════════════════════════════════════
+  Blue across the top, pink through the middle, red and orange at the bottom, with a
+  white haze behind the heading. Pure CSS: no brand asset is shipped, and a blurred
+  gradient stack reads the same at every viewport. `bb-hero-wash` is the container;
+  the pseudo-element carries the colour so the blur never touches the content.
+*/
+.bb-hero-wash {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: var(--surface-1);
+}
+.bb-hero-wash::before {
+  content: "";
+  position: absolute;
+  inset: -6% -6% auto -6%;
+  height: max(115vh, 860px);
+  z-index: -1;
+  background:
+    radial-gradient(70% 38% at 50% 6%, rgb(255 255 255 / 0.92) 0%, rgb(255 255 255 / 0) 62%),
+    radial-gradient(90% 60% at 50% -14%, #4d7cff 0%, rgb(77 124 255 / 0) 70%),
+    radial-gradient(75% 48% at 50% 40%, #ff66f4 0%, rgb(255 102 244 / 0) 72%),
+    radial-gradient(85% 50% at 50% 72%, #ff1f5c 0%, rgb(255 31 92 / 0) 75%),
+    linear-gradient(180deg, #5a86ff 0%, #ff5cf0 38%, #ff2a5e 66%, #ff8f1b 84%, var(--surface-1) 100%);
+  filter: blur(28px);
+  opacity: 0.95;
+}
+.bb-hero-wash::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 60vh;
+  z-index: -1;
+  background: radial-gradient(60% 45% at 50% 40%, rgb(255 255 255 / 0.55) 0%, rgb(255 255 255 / 0) 70%);
+  pointer-events: none;
+}
+
+/* The brand gradient, for the logo and the odd highlight. Never for buttons. */
+.bb-gradient-text {
+  background: linear-gradient(90deg, #4f88ff 0%, #b0acfe 30%, #fd2980 57%, #fa2733 71%, #ff8f1b 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* The breathing head of the chat's run progress bar (`RunProgress`). */
+.tp-run-shine {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .tp-run-shine::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      color-mix(in oklab, white 55%, transparent) 50%,
+      transparent 100%
+    );
+    width: 34%;
+    animation: tp-run-shine 2.4s var(--ease-in-out-soft) infinite;
+  }
+
+  @keyframes tp-run-shine {
+    from {
+      transform: translateX(-120%);
+    }
+    to {
+      transform: translateX(400%);
+    }
+  }
+}
+
+/* Typewriter placeholder of the hero prompt box. */
+@keyframes bb-caret {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+.bb-caret::after {
+  content: "";
+  display: inline-block;
+  width: 1px;
+  height: 1em;
+  margin-left: 1px;
+  vertical-align: -0.15em;
+  background: currentColor;
+  animation: bb-caret 1s steps(1) infinite;
+}
