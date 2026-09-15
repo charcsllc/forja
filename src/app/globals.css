@@ -95,7 +95,7 @@
 :root {
   --radius: 0.75rem;
 
-  /* Warm neutrals */
+  /* Warm neutrals: depth (page well) → base (canvas) → 1 (panels) → 2 (cards). */
   --surface-depth: oklch(95.49% 0 107);
   --surface-base: oklch(96.99% 0 107);
   --surface-1: oklch(98.51% 0 107);
