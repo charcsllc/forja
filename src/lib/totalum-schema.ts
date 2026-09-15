@@ -173,6 +173,9 @@ export function storesIdOnRecord(relation: RelationKind | null): boolean {
     return relation === "manyToOne" || relation === "oneToOne";
 }
 
+/**
+ * Whether a relation links many records on both sides.
+ */
 export function isManyToMany(relation: RelationKind | null): boolean {
     return relation === "manyToMany";
 }
