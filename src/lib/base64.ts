@@ -18,6 +18,9 @@
 
 const CHUNK = 0x8000;
 
+/**
+ * UTF-8 safe base64 encoding of a string (plain `btoa` throws on non-Latin-1 text).
+ */
 export function toBase64(text: string): string {
     const bytes = new TextEncoder().encode(text);
 
