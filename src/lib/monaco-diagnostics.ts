@@ -62,6 +62,9 @@ const OFF = {
     noSuggestionDiagnostics: true,
 };
 
+/**
+ * Turn off Monaco's TypeScript/JavaScript semantic and syntax diagnostics: the editor shows generated code whose imports it cannot resolve, so the red squiggles would be noise.
+ */
 export function silenceMonacoDiagnostics(monaco: unknown): void {
     const api = monaco as MonacoLike;
 
