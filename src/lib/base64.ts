@@ -32,6 +32,9 @@ export function toBase64(text: string): string {
     return btoa(binary);
 }
 
+/**
+ * Inverse of `toBase64`: decode base64 into a UTF-8 string.
+ */
 export function fromBase64(value: string): string {
     const binary = atob(value);
     const bytes = new Uint8Array(binary.length);
