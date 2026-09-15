@@ -101,6 +101,9 @@ export function formatDateTime(value: string | Date | null | undefined, locale: 
  */
 const ISO_TIMESTAMP = /^\d{4}-\d{2}-\d{2}(?:[T ]\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:?\d{2})?)?$/;
 
+/**
+ * Type guard for ISO-8601 timestamp strings that also parse to a valid date.
+ */
 export function isIsoDateString(value: unknown): value is string {
     return typeof value === "string" && ISO_TIMESTAMP.test(value) && !Number.isNaN(Date.parse(value));
 }
