@@ -331,6 +331,10 @@ The Totalum API routes each prompt to the best available coding model by default
 
 The code is free and MIT licensed. Running it needs a Totalum API key, which starts with 50 free credits and then charges for usage. There are no per-seat fees for the builder itself. See [pricing](https://www.totalum.app/api#pricing).
 
+### Can I use my own domain?
+
+Yes. Open the Domain panel in the workspace, add your hostname, follow the DNS steps shown, and the status updates live until the certificate is issued.
+
 ### Does it look like Lovable?
 
 The layout and the light, warm palette follow the conventions Lovable users know, so switching is painless. The logo, the name and the code are entirely our own, and you are encouraged to rebrand it.
