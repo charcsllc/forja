@@ -260,6 +260,9 @@ export function runProgress(elapsedMs: number, estimateMs?: number): RunProgress
  */
 export const EXPECTED_HANDOFF_RATIO = 0.9;
 
+/**
+ * Progress of a run from elapsed vs. expected time: a ratio that approaches the hand-off point before the estimate, then the overrun ladder past it.
+ */
 export function expectedRunProgress(elapsedMs: number, expectedMs: number): RunProgress {
     const elapsed = Math.max(0, elapsedMs);
     const expected = Math.max(2 * MINUTE, expectedMs);
