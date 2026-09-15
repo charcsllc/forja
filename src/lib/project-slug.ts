@@ -52,6 +52,9 @@ export function validateProjectSlug(slug: string): SlugProblem | null {
     return null;
 }
 
+/**
+ * Whether a slug passes every project-id rule (length, charset, leading letter).
+ */
 export function isValidProjectSlug(slug: string): boolean {
     return validateProjectSlug(slug) === null;
 }
