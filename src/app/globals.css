@@ -100,6 +100,7 @@
   --surface-base: oklch(96.99% 0 107);
   --surface-1: oklch(98.51% 0 107);
   --surface-2: oklch(99.99% 0 107);
+  /* Text: ink (headings) → ink-2 (body) → ink-3 (secondary) → ink-4 (placeholders). */
   --ink: oklch(10% 0 0);
   --ink-2: oklch(30% 0.001 107);
   --ink-3: oklch(50% 0.001 107);
