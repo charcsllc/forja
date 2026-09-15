@@ -371,6 +371,14 @@ Found a problem? [Open an issue](https://github.com/totalumlabs/lovable-alternat
 
 ---
 
+## Related projects
+
+- [`totalumlabs/ai-app-builder-open`](https://github.com/totalumlabs/ai-app-builder-open): the neutral white-label edition of the same builder.
+- [Totalum API reference](https://www.totalum.app/totalum-api.md): every endpoint this app calls, in one Markdown file.
+- [Totalum white-label program](https://www.totalum.app/whitelabel): resell the builder or embed it in your product.
+
+---
+
 ## License and trademarks
 
 Creable is released under the [MIT License](LICENSE). Free for personal and commercial use, including reselling it under your own brand.
