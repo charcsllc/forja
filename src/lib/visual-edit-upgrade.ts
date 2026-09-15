@@ -196,6 +196,9 @@ function patchFailed(patch: ConfigPatch): patch is { ok: false; reason: UpgradeS
     return patch.ok === false;
 }
 
+/**
+ * Add the source-tag build plugin to a project's `next.config`, or say why it cannot (already installed, unrecognised shape).
+ */
 export function patchNextConfig(content: string): ConfigPatch {
     if (content.includes(CONFIG_MARKER)) return { ok: false, reason: "already-installed" };
 
