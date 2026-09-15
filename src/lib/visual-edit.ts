@@ -660,6 +660,9 @@ export function findSrcCandidates(
     return candidates.sort((a, b) => b.score - a.score);
 }
 
+/**
+ * Candidate source locations for a visual change, ranked by how well they match the clicked element.
+ */
 export function findCandidates(files: Map<string, string>, change: VisualChange): Candidate[] {
     if (change.kind === "text") return findTextCandidates(files, change);
     if (change.kind === "class") {
