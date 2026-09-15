@@ -62,6 +62,9 @@ export interface UploadOutcome {
     failed: UploadFailure[];
 }
 
+/**
+ * Upload one file to a project's storage and return its record, or an error message. Retries a few times, since a just-created project's storage can need a moment.
+ */
 export async function uploadFileToProject(
     projectId: string,
     file: File,
