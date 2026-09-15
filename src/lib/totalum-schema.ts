@@ -149,6 +149,9 @@ export function stringSubtypeOf(property: DbProperty): string | undefined {
     return undefined;
 }
 
+/**
+ * The relation kind of a linked-record field (one-to-many, many-to-many…), or null for plain fields.
+ */
 export function relationOf(property: DbProperty): RelationKind | null {
     return property.objectReference?.objectReferenceRelation ?? null;
 }
