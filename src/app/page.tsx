@@ -793,6 +793,7 @@ export default function DashboardPage() {
                           <button
                             onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
                             title="Options"
+                            aria-label={`Options for ${p.label || p.projectId}`}
                             className="bb-hairline flex size-8 items-center justify-center rounded-full bg-white/90 text-ink-2 backdrop-blur-sm transition-colors hover:bg-white"
                           >
                             <MoreHorizontal className="size-4" />
