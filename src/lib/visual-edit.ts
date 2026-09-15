@@ -1216,6 +1216,9 @@ export type ElementRole =
     | "heading" | "paragraph" | "button" | "link" | "image" | "video"
     | "listItem" | "label" | "quote" | "element";
 
+/**
+ * Coarse role of an element by tag (heading, button, image, link, text…), used to rank candidates.
+ */
 export function roleOf(signature: Pick<ElementSignature, "tag">): ElementRole {
     const tag = (signature.tag || "").toLowerCase();
     if (/^h[1-6]$/.test(tag)) return "heading";
