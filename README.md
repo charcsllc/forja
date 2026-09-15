@@ -323,6 +323,10 @@ Yes. Every project is a full-stack Next.js application with an integrated databa
 
 Lovable's default output is a client-rendered React single-page app. Creable's output is server-rendered Next.js with per-page metadata, sitemaps and streaming, so crawlers and AI search engines get real HTML. For content that needs to rank, that is a meaningful difference. See [Better SEO than Lovable](#better-seo-than-lovable-server-rendered-nextjs-with-the-database-built-in).
 
+### Which AI models does it use?
+
+The Totalum API routes each prompt to the best available coding model by default. From the composer's run options you can pick the model, the effort level and fast mode per prompt.
+
 ### Is it really free?
 
 The code is free and MIT licensed. Running it needs a Totalum API key, which starts with 50 free credits and then charges for usage. There are no per-seat fees for the builder itself. See [pricing](https://www.totalum.app/api#pricing).
