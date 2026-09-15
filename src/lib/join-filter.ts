@@ -71,6 +71,9 @@ const OPERATORS_BY_KIND: Record<string, JoinOperator[]> = {
     json: ["isEmpty", "isNotEmpty"],
 };
 
+/**
+ * The comparison operators that make sense for a field kind; unknown kinds fall back to the string set.
+ */
 export function operatorsForKind(kind: FieldKind): JoinOperator[] {
     return OPERATORS_BY_KIND[kind] ?? OPERATORS_BY_KIND.string;
 }
