@@ -59,6 +59,9 @@ const NAMED_ENTITIES: Record<string, string> = {
     aacute: "á", iacute: "í", oacute: "ó", uacute: "ú", uuml: "ü", ouml: "ö", auml: "ä",
 };
 
+/**
+ * Decode the numeric and named HTML entities that can appear in JSX text and attribute values.
+ */
 export function decodeEntities(value: string): string {
     return value.replace(/&(#x?[0-9a-fA-F]+|[a-zA-Z][a-zA-Z0-9]{1,8});/g, (whole, body: string) => {
         if (body[0] === "#") {
