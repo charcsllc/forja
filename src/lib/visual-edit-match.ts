@@ -688,6 +688,9 @@ function tagAgreesWithSignature(
     return true;
 }
 
+/**
+ * Look an element up by its `file:line:column` build stamp. Null when the stamp is absent or unknown.
+ */
 export function findByLoc(index: ProjectIndex, loc: string | null | undefined): SourceElement | null {
     if (!loc) return null;
     const match = /^(.*):(\d+):(\d+)$/.exec(loc.trim());
