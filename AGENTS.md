@@ -13,6 +13,9 @@ When you change behaviour, change the matching line here in the same commit.
 
 ## 0. Read this first (30 seconds)
 
+- **Monorepo.** The UI now lives in `apps/web`; every `src/...` path in this file is
+  relative to `apps/web/`. The self-hosted engine design lives in `docs/` (start at
+  `docs/README.md`).
 - **Product facts to keep honest.** Generated apps are server-rendered Next.js projects
   with an integrated database, auth, file storage, secrets, HTTPS hosting and custom
   domains. Never describe the output as a "React front end" or a "static site". This is
@@ -42,12 +45,16 @@ When you change behaviour, change the matching line here in the same commit.
 
 ## 1. Commands and verification
 
+All commands run from the **repo root**; npm workspaces delegate them to `apps/web`
+(`@forja/web`) and, later, to `apps/*` and `packages/*`. One `package-lock.json` and one
+hoisted `node_modules` live at the root.
+
 ```bash
 npm install                      # Node 20+ (.nvmrc); CI uses `npm ci`
-cp .env.example .env.local       # then set TOTALUM_VCAAS_API_KEY=tlm_sk_...
-npm run dev                      # http://localhost:3000
-npm run typecheck                # tsc --noEmit: the fast correctness gate
-npx tsc --noEmit --noUnusedLocals --noUnusedParameters   # import hygiene (advisory)
+cp apps/web/.env.example apps/web/.env.local   # then set TOTALUM_VCAAS_API_KEY=tlm_sk_...
+npm run dev                      # http://localhost:3000 (npm run dev -w @forja/web)
+npm run typecheck                # tsc --noEmit in every workspace: the fast correctness gate
+npx tsc --noEmit --noUnusedLocals --noUnusedParameters -p apps/web   # import hygiene (advisory)
 npm run build && npm start       # production build; run before any PR
 npm audit                        # must stay at zero
 ```
@@ -55,7 +62,7 @@ npm audit                        # must stay at zero
 - **There is no test suite.** Eleven files mention `src/lib/__tests__/…`; that directory
   does not exist. Verification = typecheck + build + open the changed screen in a browser
   with a real key.
-- **CI** (`.github/workflows/typecheck.yml`) runs `npx tsc --noEmit` on pushes to `main`
+- **CI** (`.github/workflows/typecheck.yml`) runs `npm run typecheck` on pushes to `main`
   and on every pull request. Nothing else: no lint, no build, no tests.
 - **ESLint is mostly off.** `eslint.config.mjs` disables about 30 rules (unused vars, `any`,
   exhaustive deps, `jsx-key`…) and there is no `lint` script. Do not rely on it.

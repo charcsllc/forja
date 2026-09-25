@@ -57,3 +57,6 @@ playwright-dev-server.log
 *.swp
 *~
 .idea/
+
+# build outputs of workspaces
+**/dist/

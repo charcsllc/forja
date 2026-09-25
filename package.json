@@ -11,7 +11,10 @@
     "build": "npm run build --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
-    "start": "npm run start -w @forja/web"
+    "start": "npm run start -w @forja/web",
+    "agents:eval": "npm run eval -w @forja/agents --",
+    "contract:check": "npm run contract:check -w @forja/contract-tests --",
+    "audit": "npm audit"
   },
   "devDependencies": {
     "@types/node": "24.0.4",
@@ -24,7 +27,10 @@
     "node": ">=20"
   },
   "overrides": {
-    "dompurify": "^3.4.15"
+    "dompurify": "^3.4.15",
+    "@esbuild-kit/core-utils": {
+      "esbuild": ">=0.25.0"
+    }
   },
   "repository": {
     "type": "git",
