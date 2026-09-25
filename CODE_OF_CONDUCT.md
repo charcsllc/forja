@@ -1,6 +1,6 @@
 # Code of conduct
 
-Creable is a small open source project and we want it to be a pleasant place to contribute.
+Forja is a small open source project and we want it to be a pleasant place to contribute.
 
 - Be respectful. Disagree with ideas, not people.
 - Assume good intent, and ask before you judge.

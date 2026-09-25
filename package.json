@@ -1,13 +1,13 @@
 {
-  "name": "lovable-alternative",
-  "description": "Creable: open source, self-hosted Lovable alternative. Prompt → full-stack Next.js app with hosting, database, auth, visual editor, GitHub sync and custom domains. MIT.",
+  "name": "forja",
+  "description": "Forja: open source, self-hosted Lovable alternative. Prompt → full-stack Next.js app with hosting, database, auth, visual editor, GitHub sync and custom domains. MIT.",
   "scripts": {
     "dev": "next dev",
     "check-types-errors": "tsc --noEmit --skipLibCheck",
     "typecheck": "tsc --noEmit",
     "start": "next start",
     "build": "next build",
-    "test:serve": "TESTING_MODE=true PORT=3000 next start"
+    "test:serve": "next start -p 3000"
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
@@ -39,6 +39,7 @@
     "cmdk": "^1.1.1",
     "fflate": "^0.8.3",
     "lucide-react": "^0.536.0",
+    "monaco-editor": "0.56.0",
     "next-themes": "^0.4.6",
     "postcss": "^8.5.6",
     "react": "^19.2.7",
@@ -71,15 +72,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/totalumlabs/lovable-alternative.git"
+    "url": "https://github.com/charcsllc/forja.git"
   },
-  "homepage": "https://github.com/totalumlabs/lovable-alternative#readme",
+  "homepage": "https://github.com/charcsllc/forja#readme",
   "license": "MIT",
   "author": "Totalum Labs",
   "bugs": {
-    "url": "https://github.com/totalumlabs/lovable-alternative/issues"
+    "url": "https://github.com/charcsllc/forja/issues"
   },
   "keywords": [
+    "forja",
     "lovable-alternative",
     "open-source-lovable",
     "lovable",

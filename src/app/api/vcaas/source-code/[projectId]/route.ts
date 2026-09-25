@@ -41,7 +41,11 @@ export async function GET(
     const { downloadUrl, filesCount, lastCommitSha } = metaJson.data;
 
     // 2) Download the ZIP archive server-side.
-    const zipRes = await fetch(downloadUrl);
+    // Signed storage URLs never redirect; refuse one rather than follow it, and bound the wait.
+    const zipRes = await fetch(downloadUrl, {
+      redirect: "error",
+      signal: AbortSignal.timeout(60_000),
+    });
     if (!zipRes.ok) {
       return NextResponse.json(
         { ok: false, error: `Failed to download source archive (HTTP ${zipRes.status})` },

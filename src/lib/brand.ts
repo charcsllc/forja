@@ -10,22 +10,22 @@
  */
 export const BRAND = {
   /** The product name, as shown in the header, titles and dialogs. */
-  name: "Creable",
+  name: "Forja",
   /** The hero heading on the home page. Keep it short: it is set at 48px. */
   tagline: "Build something you own",
   /** Placeholder of the main prompt box. */
-  promptPlaceholder: "Ask Creable to create a landing page for my…",
+  promptPlaceholder: "Ask Forja to create a landing page for my…",
   /** `<title>` and `og:title`. */
-  metaTitle: "Creable — Open Source Lovable Alternative",
+  metaTitle: "Forja — Open Source Lovable Alternative",
   /** Search snippet: keep under ~160 characters. */
   metaDescription:
-    "Creable is an open source, self-hosted Lovable alternative. Describe an app, watch the AI build a full-stack Next.js app live, edit it visually, publish with one click.",
-  repoUrl: "https://github.com/totalumlabs/lovable-alternative",
-  docsUrl: "https://www.totalum.app/docs",
-  apiKeyUrl: "https://www.totalum.app/api",
+    "Forja is an open source, self-hosted Lovable alternative. Describe an app, watch the AI build a full-stack Next.js app live, edit it visually, publish with one click.",
+  repoUrl: "https://github.com/charcsllc/forja",
+  docsUrl: "https://www.charcs.net/docs",
+  apiKeyUrl: "https://www.charcs.net/api",
   /** Where the operator buys credits. See `InsufficientCreditsModal`. */
-  billingUrl: "https://platform.totalum.app/billing",
+  billingUrl: "https://platform.charcs.net/billing",
 } as const;
 
 /** Prefix of every localStorage / sessionStorage key this app writes. */
-export const STORAGE_PREFIX = "creable";
+export const STORAGE_PREFIX = "forja";

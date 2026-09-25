@@ -32,7 +32,7 @@ import {
 } from "lucide-react";
 
 // Monaco must never run during SSR — bring it in dynamically with ssr:false.
-const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
+const MonacoEditor = dynamic(() => import("./monaco"), {
   ssr: false,
   loading: () => (
     <div className="h-full w-full flex items-center justify-center">

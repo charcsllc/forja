@@ -2,7 +2,7 @@
 
 ## Reporting a vulnerability
 
-Please report security issues privately through [GitHub private vulnerability reporting](https://github.com/totalumlabs/lovable-alternative/security/advisories/new) rather than a public issue. We aim to acknowledge reports within three working days.
+Please report security issues privately through [GitHub private vulnerability reporting](https://github.com/charcsllc/forja/security/advisories/new) rather than a public issue. We aim to acknowledge reports within three working days.
 
 ## Scope
 
