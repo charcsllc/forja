@@ -1,0 +1,18 @@
+{
+  "name": "@forja/agents",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Forja's agent team. Phase 0 ships only the eval harness (agents:eval): one golden task per role with automatic checks; the runtime arrives in phase 2.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    "./eval": { "types": "./src/eval/index.ts", "default": "./src/eval/index.ts" },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "eval": "tsx src/eval/cli.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  }
+}

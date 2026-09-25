@@ -1,0 +1,28 @@
+{
+  "name": "@forja/contracts",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Zod schemas and types shared by the Forja UI and engine: API v1 wire shapes, run plan, agent reports, run events, localized messages and project slugs.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": { "types": "./src/index.ts", "default": "./src/index.ts" },
+    "./v1": { "types": "./src/v1/index.ts", "default": "./src/v1/index.ts" },
+    "./plan": { "types": "./src/plan.ts", "default": "./src/plan.ts" },
+    "./events": { "types": "./src/events.ts", "default": "./src/events.ts" },
+    "./reports": { "types": "./src/reports.ts", "default": "./src/reports.ts" },
+    "./messages": { "types": "./src/messages/index.ts", "default": "./src/messages/index.ts" },
+    "./slug": { "types": "./src/slug.ts", "default": "./src/slug.ts" },
+    "./package.json": "./package.json"
+  },
+  "files": ["src", "dist"],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "zod": "^3.25.76"
+  }
+}

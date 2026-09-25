@@ -1,0 +1,23 @@
+{
+  "name": "@forja/llm",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The only door to language models in Forja: provider env parsing, generation types and (for tests) a record/replay provider. Real adapters arrive in phase 2.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": { "types": "./src/index.ts", "default": "./src/index.ts" },
+    "./env": { "types": "./src/env.ts", "default": "./src/env.ts" },
+    "./types": { "types": "./src/types.ts", "default": "./src/types.ts" },
+    "./replay": { "types": "./src/replay/index.ts", "default": "./src/replay/index.ts" },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "zod": "^3.25.76"
+  }
+}

@@ -1,0 +1,45 @@
+# Traefik static configuration (docs/architecture/04 §4).
+# Routes come from two providers:
+#  - docker: labels on forja-app-<id> / forja-prod-<id>-v<N> containers, set by the engine.
+#    Reached through the socket proxy; only containers with traefik.enable=true are exposed.
+#  - file:   /data/traefik/dynamic/*.yml, written by the engine (custom domains, middlewares).
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: false
+
+entryPoints:
+  web:
+    address: ":80"
+  websecure:
+    # Always declared; it only serves real certificates once PREVIEW_TLS/PUBLISH_TLS and a
+    # certificate resolver are configured (phase 4).
+    address: ":443"
+
+providers:
+  docker:
+    endpoint: "tcp://socket-proxy:2375"
+    exposedByDefault: false
+    network: forja-apps
+    watch: true
+  file:
+    directory: /data/traefik/dynamic
+    watch: true
+
+ping:
+  entryPoint: traefik
+
+# No `api` section: the dashboard stays off. TRAEFIK_DASHBOARD=true is wired in phase 4 (behind auth).
+
+log:
+  level: INFO
+
+accessLog: {}
+
+# Phase 4 (04 §7.2/§7.3): ACME resolvers, e.g.
+# certificatesResolvers:
+#   http01:
+#     acme:
+#       email: <ACME_EMAIL>
+#       storage: /data/traefik/acme.json
+#       httpChallenge:
+#         entryPoint: web
