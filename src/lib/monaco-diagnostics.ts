@@ -38,22 +38,24 @@
  * the tokeniser's benefit, not the checker's.
  */
 
+type MonacoTypescript = {
+    typescriptDefaults?: any;
+    javascriptDefaults?: any;
+    JsxEmit?: Record<string, unknown>;
+    ScriptTarget?: Record<string, unknown>;
+    ModuleKind?: Record<string, unknown>;
+    ModuleResolutionKind?: Record<string, unknown>;
+};
+type MonacoJson = { jsonDefaults?: any };
+type MonacoCss = { cssDefaults?: any; scssDefaults?: any; lessDefaults?: any };
 /** The shape we use off the `monaco` namespace. Loosely typed on purpose — this
  *  runs against whatever version `@monaco-editor/react` pulled in, and a missing
  *  sub-API must degrade to "one less thing silenced", never to a crash. */
 type MonacoLike = {
-    languages?: {
-        typescript?: {
-            typescriptDefaults?: any;
-            javascriptDefaults?: any;
-            JsxEmit?: Record<string, unknown>;
-            ScriptTarget?: Record<string, unknown>;
-            ModuleKind?: Record<string, unknown>;
-            ModuleResolutionKind?: Record<string, unknown>;
-        };
-        json?: { jsonDefaults?: any };
-        css?: { cssDefaults?: any; scssDefaults?: any; lessDefaults?: any };
-    };
+    typescript?: MonacoTypescript;
+    json?: MonacoJson;
+    css?: MonacoCss;
+    languages?: { typescript?: MonacoTypescript; json?: MonacoJson; css?: MonacoCss };
 };
 
 const OFF = {
@@ -69,7 +71,9 @@ export function silenceMonacoDiagnostics(monaco: unknown): void {
     const api = monaco as MonacoLike;
 
     try {
-        const ts = api?.languages?.typescript;
+        // LOCAL DEVIATION from the platform copy: monaco-editor >= 0.55 moved these namespaces
+        // from `languages.*` to the top level; read both so any version is silenced.
+        const ts = api?.typescript ?? api?.languages?.typescript;
         if (!ts) return;
 
         const compilerOptions = {
@@ -110,17 +114,14 @@ export function silenceMonacoDiagnostics(monaco: unknown): void {
          *     `@custom-variant`) is an "unknown at rule", so `globals.css` in the
          *     project template lights up on the very first open.
          */
-        api.languages?.json?.jsonDefaults?.setDiagnosticsOptions?.({
+        (api?.json ?? api?.languages?.json)?.jsonDefaults?.setDiagnosticsOptions?.({
             validate: false,
             allowComments: true,
             schemaValidation: "ignore",
         });
 
-        for (const defaults of [
-            api.languages?.css?.cssDefaults,
-            api.languages?.css?.scssDefaults,
-            api.languages?.css?.lessDefaults,
-        ]) {
+        const css = api?.css ?? api?.languages?.css;
+        for (const defaults of [css?.cssDefaults, css?.scssDefaults, css?.lessDefaults]) {
             defaults?.setOptions?.({ validate: false });
         }
     } catch (error) {

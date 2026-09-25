@@ -1,6 +1,6 @@
-# Contributing to Creable
+# Contributing to Forja
 
-Thanks for helping. Creable is the open source Lovable alternative built on the Totalum API, and small, focused contributions are the easiest to review and merge.
+Thanks for helping. Forja is the open source Lovable alternative built on the Totalum API, and small, focused contributions are the easiest to review and merge.
 
 ## Before you start
 
