@@ -1,0 +1,395 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`_filter operators > _has manyToMany 1`] = `
+{
+  "params": [
+    "paid",
+  ],
+  "sql": "EXISTS (SELECT 1 FROM "public"."order_product" "t2" JOIN "public"."order" "t1" ON "t1"."id" = "t2"."order_id" WHERE "t2"."product_id" = "t0"."id" AND "t1"."status"::text = $1::text)",
+}
+`;
+
+exports[`_filter operators > _has manyToOne 1`] = `
+{
+  "params": [
+    "true",
+  ],
+  "sql": "EXISTS (SELECT 1 FROM "public"."customer" "t1" WHERE "t1"."id" = "t0"."customer_id" AND "t1"."vip" = $1::text::boolean)",
+}
+`;
+
+exports[`_filter operators > _has nested _or 1`] = `
+{
+  "params": [
+    "paid",
+    "shipped",
+  ],
+  "sql": "EXISTS (SELECT 1 FROM "public"."order" "t1" WHERE "t1"."customer_id" = "t0"."id" AND ("t1"."status"::text = $1::text OR "t1"."status"::text = $2::text))",
+}
+`;
+
+exports[`_filter operators > _has oneToMany 1`] = `
+{
+  "params": [
+    "paid",
+    "10",
+  ],
+  "sql": "EXISTS (SELECT 1 FROM "public"."order" "t1" WHERE "t1"."customer_id" = "t0"."id" AND ("t1"."status"::text = $1::text AND "t1"."total" > $2::text::numeric))",
+}
+`;
+
+exports[`_filter operators > _or search 1`] = `
+{
+  "params": [
+    "abc",
+    "abc",
+  ],
+  "sql": "("t0"."name"::text ~* $1::text OR "t0"."email"::text ~* $2::text)",
+}
+`;
+
+exports[`_filter operators > contains 1`] = `
+{
+  "params": [
+    "%50\\%\\_off\\\\%",
+  ],
+  "sql": ""t0"."name"::text ILIKE $1::text ESCAPE '\\'",
+}
+`;
+
+exports[`_filter operators > endsWith 1`] = `
+{
+  "params": [
+    "%\\_1",
+  ],
+  "sql": ""t0"."name"::text ILIKE $1::text ESCAPE '\\'",
+}
+`;
+
+exports[`_filter operators > eq _id 1`] = `
+{
+  "params": [
+    "ord_01",
+  ],
+  "sql": ""t0"."id"::text = $1::text",
+}
+`;
+
+exports[`_filter operators > eq boolean 1`] = `
+{
+  "params": [
+    "true",
+  ],
+  "sql": ""t0"."vip" = $1::text::boolean",
+}
+`;
+
+exports[`_filter operators > eq date 1`] = `
+{
+  "params": [
+    "1990-01-05",
+  ],
+  "sql": ""t0"."birth_date" = $1::text::date",
+}
+`;
+
+exports[`_filter operators > eq enum 1`] = `
+{
+  "params": [
+    "paid",
+  ],
+  "sql": ""t0"."status"::text = $1::text",
+}
+`;
+
+exports[`_filter operators > eq enum array 1`] = `
+{
+  "params": [
+    "shipped",
+  ],
+  "sql": "$1::text = ANY("t0"."history"::text[])",
+}
+`;
+
+exports[`_filter operators > eq fk 1`] = `
+{
+  "params": [
+    "cus_001",
+  ],
+  "sql": ""t0"."customer_id"::text = $1::text",
+}
+`;
+
+exports[`_filter operators > eq null 1`] = `
+{
+  "params": [],
+  "sql": ""t0"."email" IS NULL",
+}
+`;
+
+exports[`_filter operators > eq number 1`] = `
+{
+  "params": [
+    "3",
+  ],
+  "sql": ""t0"."visits" = $1::text::numeric",
+}
+`;
+
+exports[`_filter operators > eq numeric string 1`] = `
+{
+  "params": [
+    "10.5",
+  ],
+  "sql": ""t0"."credit_limit" = $1::text::numeric",
+}
+`;
+
+exports[`_filter operators > eq text 1`] = `
+{
+  "params": [
+    "Customer 001",
+  ],
+  "sql": ""t0"."name"::text = $1::text",
+}
+`;
+
+exports[`_filter operators > eq timestamp day 1`] = `
+{
+  "params": [
+    "2026-06-01T00:00:00.000Z",
+    "2026-06-01T00:00:00.000Z",
+  ],
+  "sql": "("t0"."last_seen_at" >= $1::text::timestamptz AND "t0"."last_seen_at" < $2::text::timestamptz + interval '1 day')",
+}
+`;
+
+exports[`_filter operators > eq timestamp exact 1`] = `
+{
+  "params": [
+    "2026-06-01T14:00:00.000Z",
+  ],
+  "sql": ""t0"."last_seen_at" = $1::text::timestamptz",
+}
+`;
+
+exports[`_filter operators > gt date 1`] = `
+{
+  "params": [
+    "2026-01-02T00:00:00.000Z",
+  ],
+  "sql": ""t0"."created_at" > $1::text::timestamptz",
+}
+`;
+
+exports[`_filter operators > gt gte lt lte number 1`] = `
+{
+  "params": [
+    "1",
+    "3",
+    "20",
+    "100",
+  ],
+  "sql": "(("t0"."visits" > $1::text::numeric AND "t0"."visits" <= $2::text::numeric) AND ("t0"."credit_limit" >= $3::text::numeric AND "t0"."credit_limit" < $4::text::numeric))",
+}
+`;
+
+exports[`_filter operators > gt text 1`] = `
+{
+  "params": [
+    "Customer 100",
+  ],
+  "sql": ""t0"."name"::text > $1::text",
+}
+`;
+
+exports[`_filter operators > in _id 1`] = `
+{
+  "params": [
+    "{"ord_01","ord_02"}",
+  ],
+  "sql": ""t0"."id"::text = ANY($1::text::text[])",
+}
+`;
+
+exports[`_filter operators > in enum 1`] = `
+{
+  "params": [
+    "{"paid","shipped"}",
+  ],
+  "sql": ""t0"."status"::text = ANY($1::text::text[])",
+}
+`;
+
+exports[`_filter operators > in enum array 1`] = `
+{
+  "params": [
+    "{"paid"}",
+  ],
+  "sql": ""t0"."history"::text[] && $1::text::text[]",
+}
+`;
+
+exports[`_filter operators > in number 1`] = `
+{
+  "params": [
+    "{"1","2"}",
+  ],
+  "sql": ""t0"."visits" = ANY($1::text::numeric[])",
+}
+`;
+
+exports[`_filter operators > in text 1`] = `
+{
+  "params": [
+    "{"a","b"}",
+  ],
+  "sql": ""t0"."name"::text = ANY($1::text::text[])",
+}
+`;
+
+exports[`_filter operators > isEmpty array 1`] = `
+{
+  "params": [],
+  "sql": "("t0"."tags" IS NULL OR cardinality("t0"."tags") = 0)",
+}
+`;
+
+exports[`_filter operators > isEmpty file 1`] = `
+{
+  "params": [],
+  "sql": "("t0"."avatar_image" IS NULL OR "t0"."avatar_image"::text IN ('null', '[]', '{}', '""'))",
+}
+`;
+
+exports[`_filter operators > isEmpty number 1`] = `
+{
+  "params": [],
+  "sql": ""t0"."credit_limit" IS NULL",
+}
+`;
+
+exports[`_filter operators > isEmpty text 1`] = `
+{
+  "params": [],
+  "sql": "("t0"."email" IS NULL OR "t0"."email"::text = '')",
+}
+`;
+
+exports[`_filter operators > isNotEmpty file 1`] = `
+{
+  "params": [],
+  "sql": "NOT COALESCE(("t0"."documents_file" IS NULL OR "t0"."documents_file"::text IN ('null', '[]', '{}', '""')), FALSE)",
+}
+`;
+
+exports[`_filter operators > isNotEmpty number 1`] = `
+{
+  "params": [],
+  "sql": "NOT COALESCE("t0"."credit_limit" IS NULL, FALSE)",
+}
+`;
+
+exports[`_filter operators > isNotEmpty text 1`] = `
+{
+  "params": [],
+  "sql": "NOT COALESCE(("t0"."email" IS NULL OR "t0"."email"::text = ''), FALSE)",
+}
+`;
+
+exports[`_filter operators > ne 1`] = `
+{
+  "params": [
+    "c1@example.com",
+  ],
+  "sql": "NOT COALESCE("t0"."email"::text = $1::text, FALSE)",
+}
+`;
+
+exports[`_filter operators > ne null 1`] = `
+{
+  "params": [],
+  "sql": ""t0"."email" IS NOT NULL",
+}
+`;
+
+exports[`_filter operators > nin enum 1`] = `
+{
+  "params": [
+    "{"cancelled"}",
+  ],
+  "sql": "NOT COALESCE("t0"."status"::text = ANY($1::text::text[]), FALSE)",
+}
+`;
+
+exports[`_filter operators > regex 1`] = `
+{
+  "params": [
+    "^C",
+  ],
+  "sql": ""t0"."name"::text ~ $1::text",
+}
+`;
+
+exports[`_filter operators > regex i 1`] = `
+{
+  "params": [
+    "customer 00[1-3]",
+  ],
+  "sql": ""t0"."name"::text ~* $1::text",
+}
+`;
+
+exports[`_filter operators > startsWith 1`] = `
+{
+  "params": [
+    "Cust%",
+  ],
+  "sql": ""t0"."name"::text ILIKE $1::text ESCAPE '\\'",
+}
+`;
+
+exports[`_filter operators > to-many eq id 1`] = `
+{
+  "params": [
+    "{"ord_01"}",
+  ],
+  "sql": "EXISTS (SELECT 1 FROM "public"."order_product" "t2" JOIN "public"."order" "t1" ON "t1"."id" = "t2"."order_id" WHERE "t2"."product_id" = "t0"."id" AND "t1"."id"::text = ANY($1::text::text[]))",
+}
+`;
+
+exports[`_filter operators > to-many in / empty 1`] = `
+{
+  "params": [
+    "{"ord_01"}",
+  ],
+  "sql": "(NOT EXISTS (SELECT 1 FROM "public"."order" "t1" WHERE "t1"."customer_id" = "t0"."id") OR EXISTS (SELECT 1 FROM "public"."order" "t2" WHERE "t2"."customer_id" = "t0"."id" AND "t2"."id"::text = ANY($1::text::text[])))",
+}
+`;
+
+exports[`_filter operators > to-many isNotEmpty 1`] = `
+{
+  "params": [],
+  "sql": "NOT NOT EXISTS (SELECT 1 FROM "public"."order" "t1" WHERE "t1"."customer_id" = "t0"."id")",
+}
+`;
+
+exports[`_filter operators > to-many ne 1`] = `
+{
+  "params": [
+    "{"ord_01"}",
+  ],
+  "sql": "NOT EXISTS (SELECT 1 FROM "public"."order" "t1" WHERE "t1"."customer_id" = "t0"."id" AND "t1"."id"::text = ANY($1::text::text[]))",
+}
+`;
+
+exports[`_filter operators > to-many nin 1`] = `
+{
+  "params": [
+    "{"ord_01"}",
+  ],
+  "sql": "NOT EXISTS (SELECT 1 FROM "public"."order_product" "t2" JOIN "public"."order" "t1" ON "t1"."id" = "t2"."order_id" WHERE "t2"."product_id" = "t0"."id" AND "t1"."id"::text = ANY($1::text::text[]))",
+}
+`;
+
+exports[`compileQuery: the page query > builds the grid query the UI sends (paging, sort, count, expansions) 1`] = `"SELECT (SELECT row_to_json("t1") FROM (SELECT "t0"."id" AS "_id", "t0"."created_at" AS "createdAt", "t0"."updated_at" AS "updatedAt", "t0"."number" AS "number", "t0"."status" AS "status", "t0"."history" AS "history", "t0"."total" AS "total", (SELECT row_to_json("t3") FROM (SELECT "t2"."id" AS "_id", "t2"."created_at" AS "createdAt", "t2"."updated_at" AS "updatedAt", "t2"."name" AS "name", "t2"."email" AS "email", "t2"."phone" AS "phone", "t2"."notes" AS "notes", "t2"."bio" AS "bio", "t2"."vip" AS "vip", "t2"."credit_limit" AS "creditLimit", "t2"."visits" AS "visits", "t2"."birth_date" AS "birthDate", "t2"."last_seen_at" AS "lastSeenAt", "t2"."avatar_image" AS "avatarImage", "t2"."documents_file" AS "documentsFile", "t2"."preferences" AS "preferences", "t2"."tags" AS "tags", "t2"."owner_id" AS "ownerId", "t2"."metadata" AS "metadataColumn" FROM "public"."customer" "t2" WHERE "t2"."id" = "t0"."customer_id" LIMIT 1) "t3") AS "customerId", "t0"."placed_at" AS "placedAt", "t0"."receipt_file" AS "receiptFile", "t0"."note" AS "note", (SELECT COALESCE(json_agg("t5"), '[]'::json) FROM (SELECT "t4"."id" AS "_id", "t4"."created_at" AS "createdAt", "t4"."updated_at" AS "updatedAt", "t4"."name" AS "name", "t4"."sku" AS "sku", "t4"."price" AS "price", "t4"."stock" AS "stock", "t4"."photos_image" AS "photosImage", "t4"."manual_file" AS "manualFile" FROM "public"."order_product" "t6" JOIN "public"."product" "t4" ON "t4"."id" = "t6"."product_id" WHERE "t6"."order_id" = "t0"."id" ORDER BY "t4"."created_at" DESC NULLS LAST, "t4"."id" DESC NULLS LAST LIMIT $1::text::int) "t5") AS "product") "t1") AS r, count(*) OVER () AS c FROM "public"."order" "t0" WHERE TRUE ORDER BY "t0"."created_at" DESC NULLS LAST, "t0"."id" DESC NULLS LAST LIMIT $2::text::int OFFSET $3::text::int"`;
