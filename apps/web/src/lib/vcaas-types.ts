@@ -342,7 +342,10 @@ export interface FileWriteResult {
     created: boolean;
     commitSha?: string;
     filesCount?: number;
-    /** Always true. The running server keeps serving the old build until a rebuild. */
+    /**
+     * Totalum: always true (the running server keeps serving the old build until a
+     * rebuild). Forja Engine: true only for configuration files; other writes are live.
+     */
     rebuildRequired: boolean;
 }
 

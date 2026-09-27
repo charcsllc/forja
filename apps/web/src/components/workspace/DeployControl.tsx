@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { useT } from "@/i18n";
 import { getDomainProgress } from "@/lib/domain-status";
 import { getPublishedHost } from "@/lib/project-status";
+import { publishedUrl, useBackendConfig } from "@/lib/use-backend-config";
 import { cn } from "@/lib/utils";
 import type { VcaasProject } from "@/lib/vcaas-types";
 import { DomainPendingBadge, DomainProgressCompact } from "./DomainProgress";
@@ -119,9 +120,11 @@ export function DeployControl({
      * "it is live at X" — so a second copy of this fallback chain is a second chance
      * for them to disagree.
      */
-    const publishedHost = getPublishedHost(project, projectId);
+    const backendConfig = useBackendConfig();
+    const publishedHost = getPublishedHost(project, projectId, backendConfig.publishDomain);
 
-    const liveUrl = `https://${publishedHost}`;
+    // forja: scheme from the active backend (`https` on Totalum, as before).
+    const liveUrl = publishedUrl(publishedHost, backendConfig);
 
     return (
         <>

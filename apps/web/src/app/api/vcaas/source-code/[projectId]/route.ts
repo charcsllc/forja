@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { vcaasRequest } from "@/lib/vcaas-server";
+import { fetchEnginePublic, ownFilesToken, vcaasRequest } from "@/lib/vcaas-server";
 
 // Binary source-code proxy. Fetches the VCaaS source-code signed URL, then
 // downloads the ZIP archive SERVER-SIDE (avoids browser CORS on the storage
@@ -42,10 +42,15 @@ export async function GET(
 
     // 2) Download the ZIP archive server-side.
     // Signed storage URLs never redirect; refuse one rather than follow it, and bound the wait.
-    const zipRes = await fetch(downloadUrl, {
-      redirect: "error",
-      signal: AbortSignal.timeout(60_000),
-    });
+    // forja: with the Forja Engine the signed URL is this app's own `/api/files/<token>`;
+    // fetch it from the engine directly instead of looping through our public origin.
+    const ownToken = ownFilesToken(downloadUrl, req.nextUrl.origin);
+    const zipRes = ownToken
+      ? await fetchEnginePublic(ownToken)
+      : await fetch(downloadUrl, {
+          redirect: "error",
+          signal: AbortSignal.timeout(60_000),
+        });
     if (!zipRes.ok) {
       return NextResponse.json(
         { ok: false, error: `Failed to download source archive (HTTP ${zipRes.status})` },

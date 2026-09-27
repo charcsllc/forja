@@ -1,10 +1,12 @@
 "use client";
 
 import * as React from "react";
-import { CreditCardIcon, ExternalLinkIcon } from "lucide-react";
+import { CreditCardIcon, ExternalLinkIcon, WalletIcon } from "lucide-react";
 import { Modal } from "@/components/primitives";
 import { Button } from "@/components/ui/button";
 import { INSUFFICIENT_CREDITS_EVENT } from "@/lib/vcaas";
+import { useT } from "@/i18n";
+import { useBackendConfig } from "@/lib/use-backend-config";
 
 /**
  * ═══⭐⭐ "YOU ARE OUT OF CREDITS" — ONE MODAL, EVERY ENDPOINT ═══════════════
@@ -32,14 +34,40 @@ import { INSUFFICIENT_CREDITS_EVENT } from "@/lib/vcaas";
 import { BRAND } from "@/lib/brand";
 const BUY_CREDITS_URL = BRAND.billingUrl;
 
+/**
+ * forja: the project the user is looking at, from `/project/<id>[/…]`, or `null`.
+ * Read when the modal opens: this component is mounted once in the layout and outlives
+ * client-side navigations.
+ */
+function currentProjectId(): string | null {
+    if (typeof window === "undefined") return null;
+    const match = /^\/project\/([^/]+)/.exec(window.location.pathname);
+    if (!match) return null;
+    try {
+        return decodeURIComponent(match[1]);
+    } catch {
+        return null;
+    }
+}
+
 export function InsufficientCreditsModal() {
     const [open, setOpen] = React.useState(false);
+    // forja: with the Forja Engine, "out of credits" means a budget ran out.
+    const { backend } = useBackendConfig();
+    const [projectId, setProjectId] = React.useState<string | null>(null);
 
     React.useEffect(() => {
-        const onEmpty = () => setOpen(true);
+        const onEmpty = () => {
+            setProjectId(currentProjectId());
+            setOpen(true);
+        };
         window.addEventListener(INSUFFICIENT_CREDITS_EVENT, onEmpty);
         return () => window.removeEventListener(INSUFFICIENT_CREDITS_EVENT, onEmpty);
     }, []);
+
+    if (backend === "engine") {
+        return <EngineBudgetModal open={open} onOpenChange={setOpen} projectId={projectId} />;
+    }
 
     return (
         <Modal
@@ -79,5 +107,47 @@ export function InsufficientCreditsModal() {
                 Before you publish your project, tell the AI to remove this modal.
             </p>
         </Modal>
+    );
+}
+
+/**
+ * forja: THE ENGINE VERSION. No money changes hands and there is nothing to buy; the
+ * engine refused because a run or monthly budget (in USD) is spent. The honest action is
+ * to show that budget, on this app's own `/project/<id>/budget` page. Outside a project
+ * there is no page to link to, so the button is not offered.
+ */
+function EngineBudgetModal({
+    open,
+    onOpenChange,
+    projectId,
+}: {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    projectId: string | null;
+}) {
+    const t = useT();
+    return (
+        <Modal
+            open={open}
+            onOpenChange={onOpenChange}
+            size="sm"
+            title={t("budgetExhausted.title")}
+            description={t("budgetExhausted.description")}
+            footer={
+                <>
+                    <Button variant="outline" onClick={() => onOpenChange(false)}>
+                        {t("common.close")}
+                    </Button>
+                    {projectId ? (
+                        <Button asChild className="gap-2">
+                            <a href={`/project/${encodeURIComponent(projectId)}/budget`} onClick={() => onOpenChange(false)}>
+                                <WalletIcon className="size-4" aria-hidden />
+                                {t("budgetExhausted.cta")}
+                            </a>
+                        </Button>
+                    ) : null}
+                </>
+            }
+        />
     );
 }

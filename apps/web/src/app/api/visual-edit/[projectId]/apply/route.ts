@@ -7,7 +7,7 @@ import {
     isRoutableProjectSlug,
     resolveVcaasContext,
 } from "../../../vcaas/_shared";
-import { vcaasRequest } from "@/lib/vcaas-server";
+import { fetchEnginePublic, ownFilesToken, vcaasRequest } from "@/lib/vcaas-server";
 import { applyEdits, verifyEdits, type VisualChange } from "@/lib/visual-edit";
 import { resolveChangesDeep } from "@/lib/visual-edit-resolve";
 import { installSourceTags } from "@/lib/visual-edit-upgrade";
@@ -365,16 +365,29 @@ export async function POST(
              *
              * Same guard the upload route has always used — see `@/lib/safe-url`.
              */
-            // Resolves the name too: a public hostname pointing at a private address is refused.
-            const rejection = await publicUrlRejectionReason(original);
-            if (rejection) throw new Error(rejection);
+            /**
+             * forja: THE ONE EXCEPTION. With the Forja Engine, uploads live at this app's
+             * own `/api/files/<token>` (05 §2.3). Exactly that shape — our origin, that
+             * path, a well-formed token — is fetched from the engine's fixed origin
+             * (`/v1/public/<token>`); fetching our own public URL could not even resolve
+             * inside a container. Every other URL takes the guarded path below unchanged.
+             */
+            const ownToken = ownFilesToken(original, request.nextUrl.origin);
+            let download: Response;
+            if (ownToken) {
+                download = await fetchEnginePublic(ownToken, { signal: AbortSignal.timeout(20_000) });
+            } else {
+                // Resolves the name too: a public hostname pointing at a private address is refused.
+                const rejection = await publicUrlRejectionReason(original);
+                if (rejection) throw new Error(rejection);
 
-            const download = await fetch(original, {
-                signal: AbortSignal.timeout(20_000),
-                // ⚠️ A redirect is the obvious way around a host check, so it is refused
-                // rather than followed. Our own storage never redirects.
-                redirect: "error",
-            });
+                download = await fetch(original, {
+                    signal: AbortSignal.timeout(20_000),
+                    // ⚠️ A redirect is the obvious way around a host check, so it is refused
+                    // rather than followed. Our own storage never redirects.
+                    redirect: "error",
+                });
+            }
             if (!download.ok) throw new Error(`HTTP ${download.status}`);
 
             /**

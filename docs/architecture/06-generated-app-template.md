@@ -54,7 +54,7 @@ Reglas de dependencia (`eslint-plugin-boundaries`): `domain` sin imports externo
 | `src/lib/form.ts` | Helper de formularios (zod compartido cliente/servidor, `useForm`, errores por campo) |
 | `src/modules/auth/*` | BetterAuth configurado; `getSession()`, `requireUser()`, `requireRole()` |
 | `tests/helpers/db.ts` | Base de datos de test aislada por fichero (usa `DATABASE_URL_TEST`) |
-| `scripts/migrate.mjs` | Migrador **empaquetado con esbuild** (sin depender de `node_modules` en runtime), con advisory lock |
+| `scripts/migrate.ts` → `dist/migrate.mjs` (en la imagen, `/app/migrate.mjs`) | Migrador **empaquetado con esbuild** (sin depender de `node_modules` en runtime), con advisory lock |
 | `scripts/source-tags.js` | Loader webpack que añade `data-tlm-loc` en dev |
 | `src/db/seed.ts` | Usuarios `user`, `admin`, `other` + datos de cada entidad |
 
