@@ -1,0 +1,5 @@
+# Build context for infra/images/runner/Dockerfile (repo root): only the template manifests.
+*
+!templates/nextjs-postgres/package.json
+!templates/nextjs-postgres/package-lock.json
+!templates/nextjs-postgres/template.json

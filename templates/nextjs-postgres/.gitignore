@@ -1,0 +1,28 @@
+# dependencies
+node_modules/
+
+# build output
+.next/
+out/
+dist/
+*.tsbuildinfo
+next-env.d.ts
+
+# tests
+coverage/
+playwright-report/
+test-results/
+
+# local data (uploads in development)
+.data/
+
+# env files: real values never enter git; the examples do
+.env
+.env.*
+!.env.example
+!.env.production.example
+
+# misc
+.DS_Store
+npm-debug.log*
+*.pem
