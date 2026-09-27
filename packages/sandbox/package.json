@@ -1,0 +1,26 @@
+{
+  "name": "@forja/sandbox",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Hardened Docker sandboxes per Forja project over dockerode: internal network, Postgres with app/CMS roles, the dev app container behind Traefik, the per-run verify container, exec/logs/probes and archive/unarchive (docs/architecture/04).",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:docker": "FORJA_DOCKER_IT=1 vitest run"
+  },
+  "dependencies": {
+    "@forja/contracts": "0.0.0",
+    "@types/dockerode": "^4.0.1",
+    "dockerode": "^5.0.1"
+  }
+}
