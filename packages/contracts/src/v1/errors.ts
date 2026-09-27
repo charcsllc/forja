@@ -153,6 +153,12 @@ export const ENGINE_ERROR_CODES = [
   { code: "PROJECT_NOT_FOUND", status: 404 },
   { code: "FILE_TOO_LARGE", status: 413 },
   { code: "VALIDATION", status: 400 },
+  // Phase 1 (engine): one heavy operation per project; agent/stop with no run; upload
+  // refused by content sniffing; recover of an unknown version.
+  { code: "OPERATION_IN_PROGRESS", status: 409 },
+  { code: "NO_PROCESS_RUNNING", status: 409 },
+  { code: "INVALID_FILE_TYPE", status: 415 },
+  { code: "VERSION_NOT_FOUND", status: 404 },
 ] as const;
 
 export type EngineErrorCode = (typeof ENGINE_ERROR_CODES)[number]["code"];

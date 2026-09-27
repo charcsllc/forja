@@ -1,6 +1,10 @@
 /**
  * Job queue: pg-boss on the engine database, schema `pgboss` (05 §1).
- * Phase 0 registers no jobs; phases 1+ call `registerJob` before or after `startQueue`.
+ *
+ * Phase 1 jobs (`sandbox.*`, `version.restore`) are registered by `src/jobs.ts`. They are
+ * created with `retryLimit: 0`: every job belongs to an operation slot and is idempotent
+ * per token, and the boot sequence re-queues what an engine restart interrupted, so a
+ * blind pg-boss retry could only duplicate work.
  */
 import { PgBoss, type Job } from "pg-boss";
 import type { Logger } from "./logger.js";
@@ -47,15 +51,31 @@ export type JobHandler<T> = (job: Job<T>) => Promise<unknown>;
  * Create the queue if needed and start a worker. pg-boss hands batches to `work`; this
  * helper calls `handler` once per job so handlers stay simple.
  */
+export interface RegisterOptions {
+  /** Parallel workers for this queue in this process (default 4: several projects at once). */
+  localConcurrency?: number;
+  /** A job older than this is failed by pg-boss (default 30 min). */
+  expireInSeconds?: number;
+}
+
 export async function registerJob<T extends object = object>(
   name: string,
   handler: JobHandler<T>,
+  { localConcurrency = 4, expireInSeconds = 1800 }: RegisterOptions = {},
 ): Promise<string> {
   const b = getQueue();
-  await b.createQueue(name);
-  return b.work<T>(name, async (jobs) => {
+  await b.createQueue(name, { retryLimit: 0, expireInSeconds });
+  return b.work<T>(name, { localConcurrency, batchSize: 1, pollingIntervalSeconds: 1 }, async (jobs) => {
     const results: unknown[] = [];
     for (const job of jobs) results.push(await handler(job));
     return results;
   });
+}
+
+/**
+ * `singletonKey` makes a re-send of the same job (same operation token) a no-op while the
+ * first one is queued or active, so boot-time resumption can never run a job twice.
+ */
+export async function sendJob(name: string, data: object, singletonKey?: string): Promise<void> {
+  await getQueue().send(name, data, { retryLimit: 0, expireInSeconds: 1800, ...(singletonKey ? { singletonKey } : {}) });
 }

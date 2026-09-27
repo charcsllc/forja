@@ -6,6 +6,8 @@
 **/*.tsbuildinfo
 **/.env*
 !**/.env.example
+# The app template ships its own example env files (they are part of every new project).
+!templates/**/.env*.example
 .git
 .github
 .vscode

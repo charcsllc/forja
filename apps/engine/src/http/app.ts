@@ -12,24 +12,24 @@ import { timingSafeEqual } from "node:crypto";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { requestId, type RequestIdVariables } from "hono/request-id";
-import type { Config } from "../config.js";
 import type { Logger } from "../logger.js";
+import type { EngineConfig, EngineContext } from "../services/context.js";
 import { PUBLIC_PATH_PREFIX } from "../auth/signed-url.js";
 import { EngineError, isV1Path, v1Error, v2Error } from "./errors.js";
 import { healthRoutes, type HealthProbes } from "./routes/health.js";
 import { v1Routes } from "./routes/v1.js";
+import { v2Routes } from "./routes/v2.js";
 
 export const HEALTH_PATH = "/v2/system/health";
 
 export interface AppDeps {
-  config: Pick<
-    Config,
-    "BUDGET_PER_RUN_USD" | "BUDGET_PER_PROJECT_MONTH_USD" | "BUDGET_GLOBAL_MONTH_USD"
-  >;
+  config: EngineConfig;
   engineKey: string;
   masterKey: string;
   logger: Logger;
   probes: HealthProbes;
+  /** Services and ports (store, sandbox, repos, queue, CMS). */
+  ctx: EngineContext;
 }
 
 export type AppEnv = { Variables: RequestIdVariables };
@@ -80,6 +80,7 @@ export function createApp(deps: AppDeps): Hono<AppEnv> {
 
   app.route("/", healthRoutes(deps.probes));
   app.route("/v1", v1Routes(deps));
+  app.route("/v2", v2Routes(deps));
 
   app.notFound((c) =>
     isV1Path(c.req.path)
@@ -91,10 +92,12 @@ export function createApp(deps: AppDeps): Hono<AppEnv> {
     let status = 500;
     let code = "INTERNAL_ERROR";
     let message = "Internal error";
+    let details: Record<string, unknown> | undefined;
     if (err instanceof EngineError) {
       status = err.status;
       code = err.code;
       message = err.message;
+      details = err.details;
     } else if (err instanceof HTTPException) {
       status = err.status;
       code = status === 400 ? "VALIDATION" : status === 404 ? "NOT_FOUND" : "HTTP_ERROR";
@@ -102,7 +105,7 @@ export function createApp(deps: AppDeps): Hono<AppEnv> {
     } else {
       deps.logger.error({ err, reqId: c.get("requestId") }, "unhandled error");
     }
-    const body = isV1Path(c.req.path) ? v1Error(code, message) : v2Error(code, message);
+    const body = isV1Path(c.req.path) ? v1Error(code, message, details) : v2Error(code, message, details);
     return c.json(body, status as 500);
   });
 

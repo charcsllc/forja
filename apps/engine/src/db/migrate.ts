@@ -3,16 +3,23 @@
  *
  * ⭐ Runs at every engine boot under a Postgres advisory lock held on one reserved
  * connection, so several engine instances starting together migrate exactly once.
- * Also runnable standalone: `npm run db:migrate -w @forja/engine`.
+ * Also runnable standalone: `npm run db:migrate -w @forja/engine` (src/migrate-cli.ts).
  */
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { existsSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import postgres, { type Sql } from "postgres";
 import type { Logger } from "../logger.js";
 
-/** Same relative path from src/db/ and dist/db/. */
-export const MIGRATIONS_DIR = fileURLToPath(new URL("../../drizzle", import.meta.url));
+/**
+ * apps/engine/drizzle, found from wherever this code runs: `src/db/migrate.ts` (tsx, tests)
+ * or the esbuild bundle `dist/index.js` / `dist/migrate.js`.
+ */
+export const MIGRATIONS_DIR = ((): string => {
+  const candidates = ["../../drizzle", "../drizzle"].map((rel) => fileURLToPath(new URL(rel, import.meta.url)));
+  return candidates.find((dir) => existsSync(`${dir}/meta/_journal.json`)) ?? (candidates[0] as string);
+})();
 
 /** Arbitrary constant; `pg_advisory_lock(bigint)`. "forja" in ASCII. */
 const MIGRATION_LOCK_ID = 0x666f726a61n;
@@ -34,21 +41,5 @@ export async function runMigrations(databaseUrl: string, logger: Pick<Logger, "i
     }
   } finally {
     await sql.end({ timeout: 5 });
-  }
-}
-
-const invokedDirectly =
-  process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href;
-
-if (invokedDirectly) {
-  const { loadConfig } = await import("../config.js");
-  const { createLogger } = await import("../logger.js");
-  const config = loadConfig();
-  const logger = createLogger({ level: config.LOG_LEVEL });
-  try {
-    await runMigrations(config.DATABASE_URL, logger);
-  } catch (err) {
-    logger.error({ err }, "migration failed");
-    process.exitCode = 1;
   }
 }
