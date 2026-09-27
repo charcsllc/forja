@@ -341,13 +341,18 @@ export function getProductionUrl(detail: VcaasProject | null | undefined): strin
  */
 export function getPublishedHost(
     detail: VcaasProject | null | undefined,
-    projectId: string
+    projectId: string,
+    /**
+     * forja: the publish domain of the active backend (`useBackendConfig().publishDomain`).
+     * Defaults to Totalum's, so a caller that does not pass it behaves exactly as before.
+     */
+    publishDomain: string = "totalum-project.com"
 ): string {
     const domain = detail?.customDomain;
     const host =
         domain?.status === "active" && domain.hostname
             ? domain.hostname
-            : detail?.productionProjectUrl || `${projectId}.totalum-project.com`;
+            : detail?.productionProjectUrl || `${projectId}.${publishDomain}`;
 
     return host.replace(/^https?:\/\//i, "").replace(/\/+$/, "");
 }

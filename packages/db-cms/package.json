@@ -1,0 +1,25 @@
+{
+  "name": "@forja/db-cms",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The database tab's CMS over a project's own Postgres: introspection into Totalum's table structure, the queryOptions DSL compiled to parameterized SQL, records CRUD and link/unlink (docs/architecture/05 §6).",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:db": "FORJA_DB_IT=1 vitest run"
+  },
+  "dependencies": {
+    "@forja/contracts": "0.0.0",
+    "postgres": "^3.4.9"
+  }
+}

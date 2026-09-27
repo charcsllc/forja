@@ -5,11 +5,14 @@ Forja Engine (`engine`), its Postgres, Traefik, a Docker socket proxy and the br
 sidecar. Design: `docs/architecture/01-system-architecture.md`, `04-sandbox-preview-deploy.md`
 (§1 networks, §4 Traefik) and `07-security-and-privacy.md` (§1 threat model).
 
-> **Phase 0 status.** The engine serves `/v2/system/health`, `/v1/account`,
-> `/v1/credit-costs` and answers `NOT_IMPLEMENTED` (501, v1 envelope) everywhere else.
-> The sandbox manager (dockerode through the socket proxy, project networks, Traefik
-> labels) lands in **phase 1**, and so does the web → engine wiring. Until then the UI
-> still needs `TOTALUM_VCAAS_API_KEY` to do anything useful.
+> **Phase 1 status.** The UI talks to the engine (no Totalum key needed). The engine
+> creates projects from `templates/nextjs-postgres`, runs each one in hardened Docker
+> sandboxes with its own Postgres (migrated and seeded), serves previews through Traefik
+> and through `/v2/projects/:id/preview/*`, and implements the v1 file, version, restore,
+> rebuild, restart, upload, source-code, logs, secrets and database endpoints. The AI
+> agents arrive in **phase 2**: until then `agent/start` answers `NOT_IMPLEMENTED`.
+> Images needed: `docker compose build engine web` and
+> `docker build -t forja-runner:1.0.0 -f infra/images/runner/Dockerfile .`.
 
 ## Run it
 

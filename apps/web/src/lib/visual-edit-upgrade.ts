@@ -200,7 +200,11 @@ function patchFailed(patch: ConfigPatch): patch is { ok: false; reason: UpgradeS
  * Add the source-tag build plugin to a project's `next.config`, or say why it cannot (already installed, unrecognised shape).
  */
 export function patchNextConfig(content: string): ConfigPatch {
-    if (content.includes(CONFIG_MARKER)) return { ok: false, reason: "already-installed" };
+    // forja: projects generated from templates/nextjs-postgres ship the same loader as
+    // `scripts/source-tags.js`; treat it as installed so no second rule is added.
+    if (content.includes(CONFIG_MARKER) || content.includes("source-tags.js")) {
+        return { ok: false, reason: "already-installed" };
+    }
 
     const anchor = WEBPACK_ANCHORS.find(candidate => content.includes(candidate));
     if (!anchor) return { ok: false, reason: "unknown-config" };

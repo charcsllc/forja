@@ -4,8 +4,15 @@
 # Stages: build (engine deps incl. dev + root TypeScript) → deps (prod deps only) → runtime.
 # Trade-off: `npm ci -w @forja/engine --include-workspace-root` installs only what the engine
 # and the root toolchain need, not the web app's ~1 GB of dependencies.
+# The build is an esbuild bundle (scripts/build.mjs): the workspace packages (@forja/contracts,
+# git, sandbox, db-cms) are compiled in; npm packages stay external in node_modules.
+# Templates are copied to /opt/forja/templates (TEMPLATE_DIR default), from the repo's
+# templates/ folder, so a project is created from exactly the template this image was built with.
 
 ARG NODE_IMAGE=node:22-bookworm-slim
+# Runtime on Debian trixie: @forja/git needs git >= 2.42 (`git worktree add --orphan`);
+# bookworm (and bookworm-backports) ship 2.39. Build stages stay on bookworm (glibc-forward-compatible).
+ARG RUNTIME_IMAGE=node:22-trixie-slim
 
 FROM ${NODE_IMAGE} AS build
 WORKDIR /app
@@ -22,18 +29,21 @@ COPY . .
 RUN --mount=type=cache,target=/root/.npm \
     npm ci --omit=dev -w @forja/engine --no-audit
 
-FROM ${NODE_IMAGE} AS runtime
-# git: repositories per project (phase 1). tini: PID 1 that forwards SIGTERM.
+FROM ${RUNTIME_IMAGE} AS runtime
+# git (>= 2.42): repositories per project (phase 1). tini: PID 1 that forwards SIGTERM.
 RUN apt-get update \
  && apt-get install -y --no-install-recommends git ca-certificates tini \
  && rm -rf /var/lib/apt/lists/* \
- && git config --system --add safe.directory '/data/projects/*'
-ENV NODE_ENV=production ENGINE_PORT=4000 DATA_DIR=/data
+ && git config --system --add safe.directory '/data/projects/*' \
+ && git --version
+ENV NODE_ENV=production ENGINE_PORT=4000 DATA_DIR=/data TEMPLATE_DIR=/opt/forja/templates/nextjs-postgres
 WORKDIR /app
 COPY --from=deps --chown=1000:1000 /app/node_modules ./node_modules
 COPY --from=build --chown=1000:1000 /app/apps/engine/package.json ./apps/engine/package.json
 COPY --from=build --chown=1000:1000 /app/apps/engine/dist ./apps/engine/dist
 COPY --from=build --chown=1000:1000 /app/apps/engine/drizzle ./apps/engine/drizzle
+# Project templates (read-only for the engine: it copies them into each new repository).
+COPY --from=build /app/templates /opt/forja/templates
 # The base image's `node` user is uid/gid 1000 (sandboxes and DATA_DIR use the same ids).
 USER 1000:1000
 WORKDIR /app/apps/engine

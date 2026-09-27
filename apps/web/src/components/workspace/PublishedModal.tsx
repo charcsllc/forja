@@ -5,6 +5,7 @@ import { ExternalLinkIcon, GlobeIcon, PartyPopperIcon } from "lucide-react";
 import { CopyButton, Modal, StatusPill } from "@/components/primitives";
 import { Button } from "@/components/ui/button";
 import { useT } from "@/i18n";
+import { publishedUrl, useBackendConfig } from "@/lib/use-backend-config";
 
 /**
  * ═══ "YOUR PROJECT IS LIVE" ═════════════════════════════════════════════════
@@ -46,7 +47,8 @@ export function PublishedModal({
     hasCustomDomain?: boolean;
 }) {
     const t = useT();
-    const url = `https://${host}`;
+    // forja: scheme from the active backend (`https` on Totalum, as before).
+    const url = publishedUrl(host, useBackendConfig());
 
     return (
         <Modal

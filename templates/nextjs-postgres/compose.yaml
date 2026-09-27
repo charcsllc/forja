@@ -1,0 +1,63 @@
+# Development: same topology as compose.prod.yaml (migrate → app, db) plus Mailpit.
+#   scripts/dev.sh             # or: docker compose up
+# App on http://localhost:3000, Mailpit inbox on http://localhost:8025.
+# On Docker Desktop (macOS/Windows) set WATCHPACK_POLLING=true in .env for hot reload.
+name: ${COMPOSE_PROJECT_NAME:-app}
+
+x-node: &node
+  image: node:22-bookworm-slim
+  user: node
+  working_dir: /app
+  env_file:
+    - path: .env
+      required: false
+  environment:
+    DATABASE_URL: postgres://app:app@db:5432/app
+    BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-dev-only-insecure-secret-change-me-0000}
+    NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+    INTERNAL_APP_URL: http://app:3000
+    SMTP_HOST: mailpit
+    SMTP_PORT: "1025"
+    WATCHPACK_POLLING: ${WATCHPACK_POLLING:-false}
+    NEXT_TELEMETRY_DISABLED: "1"
+    npm_config_cache: /home/node/.npm
+  volumes:
+    - .:/app
+    - node_modules:/app/node_modules
+    - next-dev:/app/.next
+    - npm-cache:/home/node/.npm
+
+services:
+  migrate:
+    <<: *node
+    command: ["sh", "-c", "npm ci --no-audit --no-fund && npm run db:migrate"]
+    depends_on: { db: { condition: service_healthy } }
+  app:
+    <<: *node
+    command: ["npm", "run", "dev", "--", "--hostname", "0.0.0.0"]
+    ports: ["${APP_PORT:-3000}:3000"]
+    depends_on:
+      db: { condition: service_healthy }
+      migrate: { condition: service_completed_successfully }
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 15s
+      retries: 20
+  db:
+    image: postgres:17-alpine
+    environment: { POSTGRES_USER: app, POSTGRES_PASSWORD: app, POSTGRES_DB: app }
+    ports: ["127.0.0.1:${DB_PORT:-5432}:5432"]
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+    healthcheck: { test: ["CMD-SHELL", "pg_isready -U app -d app"], interval: 5s, retries: 20 }
+  mailpit:
+    image: axllent/mailpit:v1.31.3
+    ports: ["127.0.0.1:${MAILPIT_PORT:-8025}:8025"]
+    healthcheck: { test: ["CMD", "/mailpit", "readyz"], interval: 10s, retries: 10 }
+
+volumes: { pgdata: {}, node_modules: {}, next-dev: {}, npm-cache: {} }

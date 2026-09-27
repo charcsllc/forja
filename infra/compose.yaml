@@ -118,6 +118,11 @@ services:
       ENGINE_PORT: "4000"
       PREVIEW_DOMAIN: ${PREVIEW_DOMAIN:-forja.localhost}
       PUBLISH_DOMAIN: ${PUBLISH_DOMAIN:-apps.forja.localhost}
+      # Signed file URLs point at the UI (`${WEB_PUBLIC_URL}/api/files/<token>`, 05 §2.3).
+      WEB_PUBLIC_URL: ${WEB_PUBLIC_URL:-http://localhost:3000}
+      # Sandbox image (build it from infra/images/runner) and the template baked into the engine image.
+      RUNNER_IMAGE: ${RUNNER_IMAGE:-forja-runner:1.0.0}
+      TEMPLATE_DIR: /opt/forja/templates/nextjs-postgres
     volumes:
       - ${DATA_DIR_HOST:-/srv/forja/data}:/data
     networks:

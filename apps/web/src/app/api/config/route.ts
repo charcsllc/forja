@@ -1,12 +1,24 @@
 import { NextResponse } from "next/server";
-import { getVcaasApiKey } from "@/lib/vcaas-server";
+import { getBackendKind, getBackendPublicConfig, getVcaasApiKey } from "@/lib/vcaas-server";
 
-// Reports whether the Totalum VCaaS API key is configured — WITHOUT ever
-// exposing the key itself to the client. The dashboard uses this to show setup
-// guidance when the builder hasn't been given a key yet.
-export function GET() {
+export const dynamic = "force-dynamic";
+
+// Reports whether the backend key is configured — WITHOUT ever exposing the key itself
+// to the client — plus which backend answers (`engine` when FORJA_ENGINE_URL is set,
+// otherwise `totalum`) and the public URL shape of published apps and previews. The
+// dashboard uses `configured` to show setup guidance; the workspace uses the rest to
+// build publish links (`useBackendConfig`).
+export async function GET() {
+  const backend = getBackendKind();
+  const { publishScheme, publishDomain, previewDomain } = await getBackendPublicConfig();
   return NextResponse.json({
     ok: true,
-    data: { configured: getVcaasApiKey().trim().length > 0 },
+    data: {
+      configured: getVcaasApiKey().trim().length > 0,
+      backend,
+      publishScheme,
+      publishDomain,
+      previewDomain,
+    },
   });
 }

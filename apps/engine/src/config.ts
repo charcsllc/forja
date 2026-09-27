@@ -109,6 +109,17 @@ const EnvSchema = z
     DISK_MIN_FREE_GB: num(5, 0),
     PROJECT_MAX_SIZE_MB: int(2048, 1),
     PROJECT_PURGE_AFTER_DAYS: int(7, 0),
+    /** Template copied into every new project (phase 1: the only one). */
+    TEMPLATE_DIR: str("/opt/forja/templates/nextjs-postgres"),
+    /** Image of `forja-app-<id>` / `forja-verify-<id>` (tagged with the template version). */
+    RUNNER_IMAGE: str("forja-runner:1.0.0"),
+    /** Image of `forja-db-<id>`. */
+    SANDBOX_DB_IMAGE: str("postgres:17-alpine"),
+    /**
+     * Name or id of the engine's own container, attached to each project's internal network
+     * so the CMS reaches `forja-db-<id>`. Empty = the hostname (Docker sets it to the short id).
+     */
+    ENGINE_CONTAINER: optStr(),
 
     // ── Preview and publish ──
     PREVIEW_DOMAIN: str("forja.localhost"),
@@ -129,6 +140,15 @@ const EnvSchema = z
     ACME_EMAIL: z.preprocess(emptyToUndefined, z.string().email().optional()),
     ACME_DNS_PROVIDER: optStr(),
     TRAEFIK_DASHBOARD: bool(false),
+    /** The UI's public origin: signed file URLs are `${WEB_PUBLIC_URL}/api/files/<token>` (05 §2.3). */
+    WEB_PUBLIC_URL: z.preprocess(
+      emptyToUndefined,
+      z
+        .string()
+        .url()
+        .transform((v) => v.replace(/\/+$/, ""))
+        .default("http://localhost:3000"),
+    ),
 
     // ── Varios ──
     ALLOW_ENV_EXPORT: bool(false),

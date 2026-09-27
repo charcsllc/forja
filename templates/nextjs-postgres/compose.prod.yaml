@@ -1,0 +1,31 @@
+# Production: `docker compose -f compose.prod.yaml --env-file .env.production up -d --build`
+# (--env-file also feeds ${POSTGRES_PASSWORD} below).
+# `migrate` applies pending migrations once; `app` starts only after it succeeds.
+name: ${COMPOSE_PROJECT_NAME:-app}
+services:
+  migrate:
+    build: .
+    command: ["node", "migrate.mjs"]
+    env_file: [.env.production]
+    depends_on: { db: { condition: service_healthy } }
+  app:
+    build: .
+    restart: unless-stopped
+    env_file: [.env.production]
+    ports: ["${APP_PORT:-3000}:3000"]
+    depends_on:
+      db: { condition: service_healthy }
+      migrate: { condition: service_completed_successfully }
+    volumes: ["uploads:/data", "next-cache:/app/.next/cache"]
+    read_only: true
+    tmpfs: ["/tmp"]
+    deploy: { resources: { limits: { memory: 1g } } }
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      { POSTGRES_USER: app, POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:?set in .env.production}", POSTGRES_DB: app }
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+    healthcheck: { test: ["CMD-SHELL", "pg_isready -U app -d app"], interval: 10s, retries: 10 }
+    deploy: { resources: { limits: { memory: 1g } } }
+volumes: { pgdata: {}, uploads: {}, next-cache: {} }

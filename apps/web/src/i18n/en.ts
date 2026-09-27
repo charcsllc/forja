@@ -4091,6 +4091,7 @@ export const en = {
       fileFailed: "We couldn't open that file",
       tooLargeToOpen: "This file is over 1 MB, which is too large to open in the editor. Download the project to read it.",
       rebuildNeeded: "Saved. Your app keeps serving the previous build until you rebuild it.",
+      rebuildNeededEngine: "Saved. This file changes the app's configuration, so it takes effect after a rebuild.", // forja
       rebuildInProgress: "Rebuilding. Your changes go live when it finishes.",
       rebuildNow: "Rebuild now",
       rebuildStarted: "Rebuild started",
@@ -5180,6 +5181,37 @@ export const en = {
     inactive: "Inactive",
     draft: "Draft",
   },
+  budget: { // forja
+    eyebrow: "Budget", // forja
+    title: "Spending for {project}", // forja
+    description: "What the AI has spent on this project this month, per run, against the limits set on the engine.", // forja
+    backToProject: "Back to project", // forja
+    refresh: "Refresh", // forja
+    projectMonth: "This project, this month", // forja
+    globalMonth: "All projects, this month", // forja
+    ofBudget: "of {budget}", // forja
+    noLimit: "No monthly limit", // forja
+    remaining: "{amount} left", // forja
+    overBudget: "Over budget by {amount}", // forja
+    runsTitle: "Runs", // forja
+    runsDescription: "Each prompt is one run, with its own spending cap.", // forja
+    colStarted: "Started", // forja
+    colStatus: "Status", // forja
+    colSpent: "Spent", // forja
+    colBudget: "Budget", // forja
+    colUsage: "Usage", // forja
+    emptyTitle: "No runs yet", // forja
+    emptyDescription: "Send a prompt and its cost shows up here as the run progresses.", // forja
+    loadFailed: "We couldn't load the budget", // forja
+    loadFailedDescription: "The engine didn't answer. Check that it is running and try again.", // forja
+    unavailableTitle: "Budgets need the Forja Engine", // forja
+    unavailableDescription: "This builder is connected to Totalum, which bills in credits. Budgets appear here when FORJA_ENGINE_URL is set.", // forja
+  }, // forja
+  budgetExhausted: { // forja
+    title: "This project has reached its budget", // forja
+    description: "The AI stopped because the spending limit for this run or this month was reached. Nothing you've built is lost. Raise the limit on the engine, or wait for next month, and try again.", // forja
+    cta: "See the budget", // forja
+  }, // forja
 } as const;
 
 export default en;

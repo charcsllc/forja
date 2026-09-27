@@ -9,6 +9,7 @@ import { silenceMonacoDiagnostics } from "@/lib/monaco-diagnostics";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { t } from "@/i18n";
+import { useBackendConfig } from "@/lib/use-backend-config";
 import type { ServerWake } from "./use-server-wake";
 import {
   Loader2,
@@ -479,6 +480,8 @@ export function CodePanel({ projectId, darkMode, onAskAiEdit, wake, onRebuildSta
   const [saving, setSaving] = useState(false);
   /** A written file only reaches the running app after a rebuild — see `handleRebuild`. */
   const [rebuildNeeded, setRebuildNeeded] = useState(false);
+  // forja: which backend answers, for the "saved but not live" copy.
+  const { backend } = useBackendConfig();
   const [rebuilding, setRebuilding] = useState(false);
 
   const cacheKey = `${CACHE_PREFIX}${projectId}`;
@@ -545,7 +548,10 @@ export function CodePanel({ projectId, darkMode, onAskAiEdit, wake, onRebuildSta
      * not the same message — a write lands in the sandbox's filesystem, and the running
      * dev server keeps serving the build it already has until it is rebuilt.
      */
-    setRebuildNeeded(true);
+    // forja: the Forja Engine applies most writes live (HMR) and says so with
+    // `rebuildRequired: false`; only configuration files need a rebuild. Totalum always
+    // answers `true`, so its behaviour is unchanged.
+    if (res.data?.rebuildRequired !== false) setRebuildNeeded(true);
     toast.success(`Saved ${selected.split("/").pop()}`);
   }, [selected, saving, drafts, projectId, wake]);
 
@@ -1016,7 +1022,9 @@ export function CodePanel({ projectId, darkMode, onAskAiEdit, wake, onRebuildSta
                 <div className="flex flex-wrap items-center gap-2 border-b border-amber-200 bg-amber-50 px-3 py-2 text-[11px] text-amber-800 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-300 shrink-0">
                   <AlertTriangle className="w-3 h-3 shrink-0" />
                   <span className="min-w-0 flex-1">
-                    Your changes are saved but the running app still serves the previous build.
+                    {backend === "engine"
+                      ? t("workspace.code.rebuildNeededEngine")
+                      : "Your changes are saved but the running app still serves the previous build."}
                   </span>
                   <Button
                     size="sm"

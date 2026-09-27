@@ -7,7 +7,7 @@ import {
     isRoutableProjectSlug,
     resolveVcaasContext,
 } from "../../../vcaas/_shared";
-import { vcaasRequest } from "@/lib/vcaas-server";
+import { getBackendKind, getVcaasApiKey, resolveEngineUrl, vcaasRequest } from "@/lib/vcaas-server";
 import { getPreviewUrl } from "@/lib/project-status";
 import type { VcaasProject } from "@/lib/vcaas-types";
 import { AGENT_PATH, AGENT_SOURCE, PREVIEW_RUNTIME_SHIM } from "@/lib/visual-edit-agent";
@@ -108,6 +108,38 @@ const STRIPPED_RESPONSE_HEADERS = new Set([
  */
 const ORIGIN_TTL_MS = 15_000;
 const originCache = new Map<string, { origin: string; at: number }>();
+
+/**
+ * ═══ forja: THE ENGINE BACKEND ═══════════════════════════════════════════════
+ *
+ * With `FORJA_ENGINE_URL` set, the upstream is not the sandbox's public URL (inside a
+ * container `*.localhost` does not resolve, 04 §4) but the engine's internal preview
+ * proxy, `${FORJA_ENGINE_URL}/v2/projects/<id>/preview/*`, which needs the `api-key`.
+ * So an upstream is an ORIGIN plus a BASE PATH (empty for Totalum). Everything else
+ * below — rewriting, header and cookie stripping, the injected agent — is unchanged.
+ * The engine answers 404 for an unknown project and 503 while the app is not ready,
+ * which the workspace already reads as "pending".
+ */
+interface PreviewUpstream {
+    origin: string;
+    /** "" for Totalum; "/v2/projects/<id>/preview" (plus any FORJA_ENGINE_URL path) for the engine. */
+    basePath: string;
+    /** Headers only this upstream needs (the engine's api-key). Never sent to a sandbox. */
+    extraHeaders: Record<string, string>;
+}
+
+function engineUpstream(projectId: string): PreviewUpstream | null {
+    try {
+        const url = new URL(resolveEngineUrl(`/v2/projects/${encodeURIComponent(projectId)}/preview`));
+        return {
+            origin: url.origin,
+            basePath: url.pathname.replace(/\/+$/, ""),
+            extraHeaders: { "api-key": getVcaasApiKey() },
+        };
+    } catch {
+        return null;
+    }
+}
 
 function cachedOrigin(key: string): string | null {
     const hit = originCache.get(key);
@@ -225,11 +257,19 @@ async function handle(
         });
     }
 
-    const resolved = await resolvePreviewOrigin(projectId, auth.ctx);
-    if ("error" in resolved) return resolved.error;
+    let resolved: PreviewUpstream;
+    if (getBackendKind() === "engine") {
+        const engine = engineUpstream(projectId);
+        if (!engine) return NextResponse.json({ ok: false, error: "Bad preview URL" }, { status: 502 });
+        resolved = engine;
+    } else {
+        const totalum = await resolvePreviewOrigin(projectId, auth.ctx);
+        if ("error" in totalum) return totalum.error;
+        resolved = { origin: totalum.origin, basePath: "", extraHeaders: {} };
+    }
 
     const suffix = (path ?? []).map(encodeURIComponent).join("/");
-    const target = new URL(`${resolved.origin}/${suffix}`);
+    const target = new URL(`${resolved.origin}${resolved.basePath}/${suffix}`);
     target.search = request.nextUrl.search;
 
     // Forward the request, minus the headers that would confuse the upstream or
@@ -240,6 +280,8 @@ async function handle(
     });
     // Ask for an unencoded body so the HTML rewrite below does not have to gunzip.
     headers.set("accept-encoding", "identity");
+    // forja: the engine's key comes from us (`set` replaces anything the caller sent).
+    for (const [key, value] of Object.entries(resolved.extraHeaders)) headers.set(key, value);
 
     let upstream: Response;
     try {
@@ -273,7 +315,12 @@ async function handle(
                 // Leaving the preview origin ends the proxy's remit.
                 return NextResponse.json({ ok: false, error: "Blocked cross-origin redirect" }, { status: 502 });
             }
-            responseHeaders.set("location", `${base}${next.pathname}${next.search}`);
+            // forja: strip the engine's base path so the app path is what stays in the proxy.
+            let appPath = next.pathname;
+            if (resolved.basePath && (appPath === resolved.basePath || appPath.startsWith(`${resolved.basePath}/`))) {
+                appPath = appPath.slice(resolved.basePath.length) || "/";
+            }
+            responseHeaders.set("location", `${base}${appPath}${next.search}`);
         } catch {
             responseHeaders.delete("location");
         }

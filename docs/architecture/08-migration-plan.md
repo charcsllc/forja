@@ -56,6 +56,24 @@ tipos locales marcados `TODO(phase-0)` por `@forja/contracts`, y quitar `docs/` 
   (probar Safari), editar y guardar en Code con cambio instantáneo, restaurar versión,
   pestaña Database sobre la base de la plantilla, subir un fichero al CMS y verlo.
 
+**Estado fase 1 · engine (2026-09-27, sin commit).** `apps/engine` sirve la API v1 sin agente
+(proyectos, provisión `sandbox.provision`, restart/wake, files, rebuild, versiones/diff/restore,
+secretos, subidas, código fuente, logs dev, base de datos vía `@forja/db-cms`, stubs de 05 §2.1,
+superficie pública firmada, `system/public-config`) y la v2 `preview/*`, `budget`, `undelete`,
+`archive`. Verificado de extremo a extremo en Docker real: proyecto `Active` en ~60 s, preview por
+Traefik (`Host: <id>.forja.localhost`) y por `/v2/projects/<id>/preview/`, edición con HMR en ~3 s,
+restore, subida + URL firmada, `tables-structure` + CRUD del CMS, zip, rebuild no-op y real,
+restart, archive → wake, borrado + undelete, recreación del engine (re-adjunta redes); simuladores
+de `packages/contract-tests` en verde para rebuild, restart, restore y wake; `launch` responde
+`agent.started:false` y `agent/start` 501 como se espera hasta la fase 2. La web se probó con su
+build standalone en el host (la imagen `forja-web:local` era anterior al cableado y no había disco
+para reconstruirla). Desviaciones: git ≥ 2.42 obliga a basar el runtime del engine en Debian trixie;
+las rutas de base de datos despiertan el sandbox entero (no solo la DB) para que el wake de la UI
+termine; imágenes subidas sin re-codificar; tabla `versions` sin poblar (git es la fuente; `_id` =
+commit sha); el archivado es manual (`/v2/.../archive`) y sin captura estática. No verificado:
+navegador (Chrome/Firefox/Safari con `*.localhost`), UI del workspace sobre el engine, reglas de
+firewall, gVisor, `SANDBOX_EGRESS=registry-only`.
+
 ## Fase 2 · Gateway LLM y el primer bucle de agentes
 
 - `packages/llm`: env de dos valores, catálogo verificado, router con requisitos por rol,

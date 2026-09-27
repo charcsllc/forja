@@ -1,0 +1,21 @@
+# Never in the image: dependencies (reinstalled), build output, secrets, VCS, tests, local data.
+node_modules
+.next
+dist
+.git
+.github
+.env
+.env.*
+!.env.example
+!.env.production.example
+.data
+coverage
+playwright-report
+test-results
+e2e
+tests
+*.tsbuildinfo
+npm-debug.log*
+Dockerfile
+compose*.yaml
+.dockerignore

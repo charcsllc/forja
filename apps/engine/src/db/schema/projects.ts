@@ -1,4 +1,4 @@
-import { index, pgTable, text } from "drizzle-orm/pg-core";
+import { boolean, index, jsonb, pgTable, text } from "drizzle-orm/pg-core";
 import { timestamps, tstz } from "./_common.js";
 
 /**
@@ -29,6 +29,19 @@ export const projects = pgTable(
     lastActivityAt: tstz("last_activity_at"),
     deletedAt: tstz("deleted_at"),
     purgeAfter: tstz("purge_after"),
+    /** Last sandbox failure (provision, wake, restart), shown as `serverErrorMessage`; null when healthy. */
+    serverError: text("server_error"),
+    /** `rebuild/status`: idle | rebuilding | success | error. */
+    rebuildStatus: text("rebuild_status").notNull().default("idle"),
+    rebuildStartedAt: tstz("rebuild_started_at"),
+    rebuildError: text("rebuild_error"),
+    /** A no-op rebuild (nothing to apply) resolves to `success` on the first status read after it. */
+    rebuildNoop: boolean("rebuild_noop").notNull().default(false),
+    /** `main` HEAD and rendered-env hash at the last provision or successful rebuild. */
+    rebuildSha: text("rebuild_sha"),
+    rebuildEnvHash: text("rebuild_env_hash"),
+    /** `versionRecovery` (research/02 §3): {status, versionId, startedAt, errorMessage?} | null. */
+    versionRecovery: jsonb("version_recovery"),
     ...timestamps,
   },
   (t) => [

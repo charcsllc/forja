@@ -108,7 +108,7 @@ Sin rate limit en previews (rompería HMR).
   esquema y puerto por `/api/config`, ver `08`).
 - **Dentro de contenedores `*.localhost` no resuelve.** Todo lo que se ejecute en servidor
   usa URLs internas: el proxy de preview de la UI llama a
-  `engine /v1/projects/:id/preview/*` (el engine reenvía a `forja-app-<id>:3000` o, si se
+  `engine /v2/projects/:id/preview/*` (el engine reenvía a `forja-app-<id>:3000` o, si se
   pide `?target=verify`, a `forja-verify-<id>:3000`); Playwright usa `forja-verify-<id>:3000`;
   las apps generadas reciben `NEXT_PUBLIC_APP_URL` (público) y `INTERNAL_APP_URL` (propio
   contenedor) y BetterAuth `trustedOrigins` con ambos más el dominio de producción.
@@ -168,7 +168,7 @@ Sin rate limit en previews (rompería HMR).
    por proyecto).
 3. Base de producción `forja-proddb-<id>` (volumen propio, contraseña generada y guardada
    en `secrets` como `POSTGRES_PASSWORD@production`). **Migraciones como job separado**
-   (`docker run --rm forja/<id>:v<N> node scripts/migrate.mjs`) **antes** del cambio de
+   (`docker run --rm forja/<id>:v<N> node migrate.mjs`) **antes** del cambio de
    tráfico; la plantilla exige migraciones compatibles (expand/contract), así la versión
    anterior sigue funcionando durante el cambio.
 4. Arranque de `forja-prod-<id>-v<N>` con env de producción (secretos `production|both`

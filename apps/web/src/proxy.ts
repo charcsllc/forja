@@ -41,8 +41,11 @@ function addCorsHeaders(response: NextResponse, request: NextRequest) {
 }
 
 // Set CSP to allow iframe embedding from any domain and remove X-Frame-Options
-function addCspHeaders(response: NextResponse) {
-  response.headers.set("Content-Security-Policy", "frame-ancestors *");
+function addCspHeaders(response: NextResponse, request?: NextRequest) {
+  // forja: `/api/files/*` serves user uploads from the engine on THIS origin. `sandbox`
+  // stops an uploaded HTML/SVG document from running script here; images still render.
+  const isUserFile = request?.nextUrl.pathname.startsWith("/api/files/") ?? false;
+  response.headers.set("Content-Security-Policy", isUserFile ? "sandbox; frame-ancestors *" : "frame-ancestors *");
   response.headers.delete("X-Frame-Options");
   return response;
 }
@@ -62,7 +65,7 @@ export async function proxy(request: NextRequest) {
   // Every route is public — just attach CORS + CSP headers and continue.
   const response = NextResponse.next();
   addCorsHeaders(response, request);
-  addCspHeaders(response);
+  addCspHeaders(response, request);
   return response;
 }
 

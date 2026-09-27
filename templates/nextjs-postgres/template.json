@@ -1,0 +1,58 @@
+{
+  "$comment": "Contract between this template and the Forja engine. Bump `version` (semver) whenever the files a generated project inherits change; the runner image is tagged with the same version.",
+  "name": "nextjs-postgres",
+  "version": "1.0.0",
+  "description": "Full-stack Next.js 16 (App Router, React 19, TypeScript strict) with Postgres 17, Drizzle, BetterAuth, Tailwind 4 and pg-boss.",
+  "node": ">=22.12.0",
+  "commands": {
+    "install": "npm ci",
+    "dev": "npm run dev",
+    "build": "npm run build",
+    "check": "npm run check",
+    "migrate": "npm run db:migrate",
+    "seed": "npm run db:seed"
+  },
+  "port": 3000,
+  "health": "/api/health",
+  "productionMigrate": "node migrate.mjs",
+  "roleScopes": {
+    "database": ["src/db/**", "drizzle/**", "docs/adr/**"],
+    "backend": [
+      "src/modules/*/domain/**",
+      "src/modules/*/application/**",
+      "src/modules/*/infrastructure/**",
+      "src/modules/*/ui/actions.ts",
+      "src/app/api/**",
+      "src/jobs/**",
+      "tests/modules/**",
+      "tests/db/**"
+    ],
+    "frontend": [
+      "src/app/**",
+      "src/components/layout/**",
+      "src/modules/*/ui/**",
+      "src/proxy.ts",
+      "tests/components/**"
+    ],
+    "designer": ["src/app/globals.css", "src/components/ui/**", "src/app/fonts/**", "docs/design/**"],
+    "brand": ["public/brand/**", "src/app/icon.svg", "src/app/opengraph-image.tsx", "docs/brand/**"],
+    "copywriter": ["src/content/**", "docs/content/**"],
+    "imagery": ["public/media/**"],
+    "qa": ["e2e/**", "tests/**", "playwright.config.ts"],
+    "security": ["src/lib/safe-url.ts", "src/lib/rate-limit.ts", "src/modules/auth/**", "next.config.ts"],
+    "supervisor": [
+      "Dockerfile",
+      "compose.yaml",
+      "compose.prod.yaml",
+      ".dockerignore",
+      ".env.example",
+      ".env.production.example",
+      "src/env.ts",
+      "scripts/**",
+      ".github/workflows/**",
+      "package.json",
+      "package-lock.json"
+    ],
+    "docs": ["README.md", "AGENTS.md", "CHANGELOG.md", "docs/**"]
+  }
+}

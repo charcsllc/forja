@@ -41,6 +41,7 @@ import { PublishedModal } from "@/components/workspace/PublishedModal";
 import { useProjectOperation } from "@/components/workspace/use-project-operation";
 import { OPERATION_COPY, OPERATION_PROFILES, shouldAdoptServerRebuild } from "@/lib/project-operation";
 import { getPublishedHost, getPreviewUrlField } from "@/lib/project-status";
+import { loadBackendConfig, publishedUrl, readBackendConfig } from "@/lib/use-backend-config";
 import { useVisualEditor } from "@/components/workspace/visual-editor/use-visual-editor";
 import { VisualEditorPanel } from "@/components/workspace/visual-editor/VisualEditorPanel";
 import { VisualChangesBar } from "@/components/workspace/visual-editor/VisualChangesBar";
@@ -417,6 +418,9 @@ export default function WorkspacePage() {
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { mountedRef.current = true; return () => { mountedRef.current = false; }; }, []);
+  // forja: warm the backend config (publish scheme/domain) so the deploy poll's
+  // `readBackendConfig()` has the real answer by the time a publish finishes.
+  useEffect(() => { void loadBackendConfig(); }, []);
 
   // Global dark mode
   useEffect(() => {
@@ -563,12 +567,15 @@ export default function WorkspacePage() {
          * ADDRESS — to click, to copy, to send to somebody — and a toast that disappears
          * in four seconds is the wrong place for it.
          */
-        setPublishedHost(getPublishedHost(proj, projectId));
+        // forja: scheme and domain come from the active backend (Totalum's by default).
+        // Read at this moment, not captured: this closure outlives several renders.
+        const backendConfig = readBackendConfig();
+        setPublishedHost(getPublishedHost(proj, projectId, backendConfig.publishDomain));
         // Surface the deploy result in the chat and pull the latest conversation.
-        const liveUrl = proj?.productionProjectUrl || project?.productionProjectUrl || `${projectId}.totalum-project.com`;
+        const liveUrl = proj?.productionProjectUrl || project?.productionProjectUrl || `${projectId}.${backendConfig.publishDomain}`;
         setMessages((prev) => [...prev, {
           author: "agent",
-          message: `${"🚀 Your app is now live at"} https://${liveUrl}`,
+          message: `${"🚀 Your app is now live at"} ${publishedUrl(liveUrl, backendConfig)}`,
           messageType: "finished",
           createdAt: new Date().toISOString(),
         }]);
