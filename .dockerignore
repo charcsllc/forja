@@ -1,0 +1,14 @@
+# Build context = repo root (infra/compose.yaml builds apps/web and apps/engine from here).
+**/node_modules
+**/.next
+**/dist
+**/coverage
+**/*.tsbuildinfo
+**/.env*
+!**/.env.example
+.git
+.github
+.vscode
+.claude
+docs
+**/*.log

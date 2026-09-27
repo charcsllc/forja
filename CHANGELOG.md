@@ -4,7 +4,11 @@ All notable changes to Forja are listed here. The format follows [Keep a Changel
 
 ## [Unreleased]
 
+### Changed
+- chore: move the UI into `apps/web` and turn the repo into an npm-workspaces monorepo (no functional change)
+
 ### Added
+- feat(engine): add the Forja Engine skeleton (Hono API, Postgres schema, pg-boss queue, health) and the platform compose stack under `infra/`
 - Contribution guide, security policy, code of conduct, issue and PR templates, CI typecheck.
 - JSDoc on every exported helper under `src/lib`.
 - First public edition: the ai-app-builder-open engine restyled after the Lovable layout and palette.

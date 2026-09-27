@@ -1,0 +1,7 @@
+# Optional override: publish the engine API on the host (debugging, external clients).
+#   ENGINE_EXPOSE=127.0.0.1:4000 docker compose -f infra/compose.yaml -f infra/compose.expose.yaml --env-file infra/.env up -d
+# Every route except /v2/system/health still requires the api-key header.
+services:
+  engine:
+    ports:
+      - "${ENGINE_EXPOSE:?set ENGINE_EXPOSE, e.g. 127.0.0.1:4000}:4000"

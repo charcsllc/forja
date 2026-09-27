@@ -17,4 +17,4 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      - run: npx tsc --noEmit
+      - run: npm run typecheck   # root script: tsc --noEmit in every workspace (apps/web today)

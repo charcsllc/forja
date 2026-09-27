@@ -168,10 +168,10 @@ Requirements: [Node.js](https://nodejs.org) 20 or newer.
 git clone https://github.com/charcsllc/forja.git
 cd forja
 npm install
-cp .env.example .env.local
+cp apps/web/.env.example apps/web/.env.local
 ```
 
-Open `.env.local` and set your key:
+Open `apps/web/.env.local` and set your key:
 
 ```bash
 TOTALUM_VCAAS_API_KEY=tlm_sk_...
@@ -189,7 +189,7 @@ Visit [http://localhost:3000](http://localhost:3000), type what you want to buil
 
 1. Create an account at [totalum.app/api](https://www.totalum.app/api).
 2. During onboarding choose **Use the Totalum API**.
-3. Copy the key into `.env.local` as `TOTALUM_VCAAS_API_KEY`.
+3. Copy the key into `apps/web/.env.local` as `TOTALUM_VCAAS_API_KEY`.
 
 The first 50 AI credits are free, enough for the first few apps. That one key covers the agent, hosting, databases, sandboxes, deploys, domains and GitHub sync for every app you build.
 

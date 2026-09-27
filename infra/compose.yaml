@@ -1,0 +1,211 @@
+# Forja platform stack (docs/architecture/01, 04 §1/§4, 07 §1).
+#   docker compose -f infra/compose.yaml --env-file infra/.env up -d
+# Networks (see infra/README.md for the why):
+#   forja-core   web, engine, postgres, traefik           (web lives ONLY here)
+#   forja-apps   engine, traefik, browser + every project container (fixed name: Traefik
+#                labels and the engine attach sandboxes to it by name)
+#   forja-docker engine, traefik, socket-proxy            (internal; nobody else reaches Docker)
+name: forja
+
+x-hardening: &hardening
+  security_opt:
+    - no-new-privileges:true
+  restart: unless-stopped
+
+services:
+  # One-shot: create DATA_DIR layout and the engine/master keys (0600, uid 1000), then exit.
+  # engine.key is also copied to the forja-data volume, which web mounts read-only;
+  # master.key never leaves DATA_DIR.
+  init:
+    image: alpine:3.22
+    user: "0:0"
+    network_mode: none
+    volumes:
+      - ${DATA_DIR_HOST:-/srv/forja/data}:/data
+      - forja-data:/shared
+    command:
+      - /bin/sh
+      - -euc
+      - |
+        umask 077
+        mkdir -p /data/engine /data/projects /data/traefik/dynamic /shared/engine
+        if [ ! -s /data/engine/engine.key ]; then
+          head -c 32 /dev/urandom | base64 | tr '+/' '-_' | tr -d '=\n' > /data/engine/engine.key
+          echo "init: generated engine.key"
+        fi
+        if [ ! -s /data/engine/master.key ]; then
+          head -c 32 /dev/urandom | base64 | tr -d '\n' > /data/engine/master.key
+          echo "init: generated master.key (back it up: it decrypts project secrets)"
+        fi
+        cp /data/engine/engine.key /shared/engine/engine.key
+        chmod 600 /data/engine/engine.key /data/engine/master.key /shared/engine/engine.key
+        chmod 755 /data/traefik /data/traefik/dynamic
+        chown 1000:1000 /data /data/engine /data/engine/engine.key /data/engine/master.key \
+          /data/projects /data/traefik /data/traefik/dynamic \
+          /shared /shared/engine /shared/engine/engine.key
+    restart: "no"
+
+  postgres:
+    <<: *hardening
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: forja
+      POSTGRES_DB: forja
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in infra/.env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks: [forja-core]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U forja -d forja"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  socket-proxy:
+    <<: *hardening
+    image: tecnativa/docker-socket-proxy:v0.5.0
+    environment:
+      # Allowed: what the engine's sandbox manager needs (07 §1) ...
+      CONTAINERS: 1
+      IMAGES: 1
+      NETWORKS: 1
+      VOLUMES: 1
+      EXEC: 1
+      BUILD: 1
+      POST: 1
+      # ... plus EVENTS, which Traefik's Docker provider needs to see containers come and go.
+      EVENTS: 1
+      # PING and VERSION stay at the image default (1). Everything else is denied.
+      AUTH: 0
+      CONFIGS: 0
+      DISTRIBUTION: 0
+      GRPC: 0
+      INFO: 0
+      NODES: 0
+      PLUGINS: 0
+      SECRETS: 0
+      SERVICES: 0
+      SESSION: 0
+      SWARM: 0
+      SYSTEM: 0
+      TASKS: 0
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks: [forja-docker]
+
+  engine:
+    <<: *hardening
+    build:
+      context: ..
+      dockerfile: apps/engine/Dockerfile
+    image: forja-engine:local
+    user: "1000:1000"
+    depends_on:
+      init:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+      socket-proxy:
+        condition: service_started
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: postgres://forja:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in infra/.env}@postgres:5432/forja
+      DATA_DIR: /data
+      DATA_DIR_HOST: ${DATA_DIR_HOST:-/srv/forja/data}
+      DOCKER_HOST: tcp://socket-proxy:2375
+      ENGINE_PORT: "4000"
+      PREVIEW_DOMAIN: ${PREVIEW_DOMAIN:-forja.localhost}
+      PUBLISH_DOMAIN: ${PUBLISH_DOMAIN:-apps.forja.localhost}
+    volumes:
+      - ${DATA_DIR_HOST:-/srv/forja/data}:/data
+    networks:
+      forja-core:
+        gw_priority: 1 # default route (and host.docker.internal) via forja-core, not forja-apps
+      forja-apps: {}
+      forja-docker: {}
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    # No published ports. To reach the engine from the host, set ENGINE_EXPOSE and add
+    # -f infra/compose.expose.yaml (see infra/README.md).
+
+  web:
+    <<: *hardening
+    build:
+      context: ..
+      dockerfile: apps/web/Dockerfile
+    image: forja-web:local
+    user: "1000:1000"
+    depends_on:
+      init:
+        condition: service_completed_successfully
+      engine:
+        condition: service_healthy
+    # Deliberately no env_file: web never sees provider keys or the master key.
+    environment:
+      FORJA_ENGINE_URL: http://engine:4000
+      NEXT_TELEMETRY_DISABLED: "1"
+      NEXT_PUBLIC_APP_URL: ${WEB_PUBLIC_URL:-http://localhost:3000}
+      # Until phase 1 wires web to the engine, the UI still talks to Totalum when this is set.
+      TOTALUM_VCAAS_API_KEY: ${TOTALUM_VCAAS_API_KEY:-}
+    volumes:
+      # Holds only engine/engine.key (copied by init). web-entrypoint.sh exports it.
+      - forja-data:/data:ro
+    ports:
+      - "${WEB_BIND:-127.0.0.1:3000}:3000"
+    networks: [forja-core] # never forja-apps (07 §1)
+
+  traefik:
+    <<: *hardening
+    image: traefik:v3.7
+    depends_on:
+      init:
+        condition: service_completed_successfully
+      socket-proxy:
+        condition: service_started
+    command:
+      - --configFile=/etc/traefik/traefik.yml
+    volumes:
+      - ./traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+      - ${DATA_DIR_HOST:-/srv/forja/data}/traefik/dynamic:/data/traefik/dynamic:ro
+    ports:
+      - "${TRAEFIK_BIND_IP:-127.0.0.1}:${TRAEFIK_HTTP_PORT:-80}:80"
+      - "${TRAEFIK_BIND_IP:-127.0.0.1}:${TRAEFIK_HTTPS_PORT:-443}:443"
+    networks: [forja-apps, forja-core, forja-docker]
+    healthcheck:
+      test: ["CMD", "traefik", "healthcheck", "--ping"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  # Playwright + sharp sidecar (screenshots, axe, flows, image optimisation). No Docker
+  # socket. Phase 0: an HTTP stub answering 501; phase 3 implements it.
+  browser:
+    <<: *hardening
+    build:
+      context: ./images/browser
+    image: forja-browser:local
+    init: true
+    networks: [forja-apps]
+    shm_size: 1gb
+
+networks:
+  forja-core:
+    name: forja-core
+    internal: false
+    driver_opts:
+      com.docker.network.bridge.name: fj-core
+  forja-apps:
+    name: forja-apps
+    driver_opts:
+      com.docker.network.bridge.name: fj-apps
+  forja-docker:
+    name: forja-docker
+    internal: true
+    driver_opts:
+      com.docker.network.bridge.name: fj-docker
+
+volumes:
+  forja-data: {}
+  pgdata: {}

@@ -1,0 +1,10 @@
+{
+  "name": "forja-browser",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Forja browser sidecar (phase 0 stub). Playwright comes from the base image.",
+  "dependencies": {
+    "sharp": "0.35.4"
+  }
+}
