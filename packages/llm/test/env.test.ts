@@ -72,7 +72,7 @@ describe("parseProviderEnv: status rules", () => {
 
   it("lists every known provider exactly once per kind", () => {
     const r = parseProviderEnv({});
-    expect(r.providers.filter((p) => p.kind === "llm")).toHaveLength(17);
+    expect(r.providers.filter((p) => p.kind === "llm")).toHaveLength(18);
     expect(r.providers.filter((p) => p.kind === "image")).toHaveLength(5);
     expect(r.providers.filter((p) => p.kind === "stock")).toHaveLength(3);
   });
@@ -128,6 +128,26 @@ describe("parseProviderEnv: optional settings", () => {
   it("reports unknown provider variables (typos)", () => {
     const r = parseProviderEnv({ LLM_ANTHROPC: "true|x", LLM_ANTHROPIC_BASE_URL: "https://a.b", STOCK_FLICKR: "true|x", PATH: "/bin" });
     expect(r.unknownVariables).toEqual(["LLM_ANTHROPC", "STOCK_FLICKR"]);
+  });
+});
+
+describe("nvidia and request rate", () => {
+  it("LLM_NVIDIA is a hosted provider: a key is required", () => {
+    expect(entry({ LLM_NVIDIA: `true|${KEY}` }, "nvidia")).toMatchObject({ status: "enabled", local: false, apiKeyPresent: true });
+    expect(entry({ LLM_NVIDIA: "true|" }, "nvidia").status).toBe("misconfigured");
+  });
+
+  it("parses LLM_<P>_RPM as a positive integer", () => {
+    expect(entry({ LLM_NVIDIA: `true|${KEY}`, LLM_NVIDIA_RPM: "40" }, "nvidia").rpm).toBe(40);
+    expect(entry({ LLM_NVIDIA: `true|${KEY}` }, "nvidia").rpm).toBeUndefined();
+    const bad = entry({ LLM_NVIDIA: `true|${KEY}`, LLM_NVIDIA_RPM: "0" }, "nvidia");
+    expect(bad.status).toBe("misconfigured");
+    expect(bad.reasons.join("\n")).toMatch(/LLM_NVIDIA_RPM must be a positive integer/);
+  });
+
+  it("never reports IMAGES_FROM_WEB_SEARCH or LLM_<P>_RPM as unknown", () => {
+    const r = parseProviderEnv({ IMAGES_FROM_WEB_SEARCH: "true", LLM_NVIDIA: `true|${KEY}`, LLM_NVIDIA_RPM: "40", LLM_GROQ_RPM: "30", LLM_NVIDA_RPM: "1" });
+    expect(r.unknownVariables).toEqual(["LLM_NVIDA_RPM"]);
   });
 });
 

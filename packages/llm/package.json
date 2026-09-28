@@ -2,7 +2,7 @@
   "name": "@forja/llm",
   "version": "0.0.0",
   "private": true,
-  "description": "The only door to language models in Forja: provider env parsing, generation types and (for tests) a record/replay provider. Real adapters arrive in phase 2.",
+  "description": "The only door to language models in Forja: provider env parsing, the provider catalog, the openai-compatible adapter, the gateway (router, rate limiter, budget) and (for tests) a record/replay provider.",
   "license": "MIT",
   "type": "module",
   "sideEffects": false,
@@ -10,11 +10,16 @@
     ".": { "types": "./src/index.ts", "default": "./src/index.ts" },
     "./env": { "types": "./src/env.ts", "default": "./src/env.ts" },
     "./types": { "types": "./src/types.ts", "default": "./src/types.ts" },
+    "./errors": { "types": "./src/errors.ts", "default": "./src/errors.ts" },
+    "./catalog": { "types": "./src/catalog/index.ts", "default": "./src/catalog/index.ts" },
+    "./adapters": { "types": "./src/adapters/index.ts", "default": "./src/adapters/index.ts" },
+    "./gateway": { "types": "./src/gateway/index.ts", "default": "./src/gateway/index.ts" },
     "./replay": { "types": "./src/replay/index.ts", "default": "./src/replay/index.ts" },
     "./package.json": "./package.json"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
+    "llm:smoke": "tsx src/cli/smoke.ts",
     "test": "vitest run"
   },
   "dependencies": {

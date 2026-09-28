@@ -11,6 +11,8 @@
  *   from `/v2/system/models`. The only way to read a key is `report.getApiKey(...)`, a
  *   non-enumerable accessor backed by a closure, so `JSON.stringify(report)` cannot leak it.
  * - The same rules apply to `IMAGE_*` and `STOCK_*` media providers.
+ * - Instance settings that merely share a prefix (`IMAGES_FROM_WEB_SEARCH`) are never
+ *   reported as unknown provider variables.
  */
 import { z } from "zod";
 
@@ -18,7 +20,7 @@ import { z } from "zod";
 
 export const LLM_PROVIDER_IDS = [
   "anthropic", "openai", "google", "zai", "qwen", "deepseek", "moonshot", "minimax",
-  "mistral", "xai", "groq", "together", "fireworks", "openrouter", "ollama", "lmstudio", "vllm",
+  "mistral", "xai", "groq", "together", "fireworks", "openrouter", "nvidia", "ollama", "lmstudio", "vllm",
 ] as const;
 export type LlmProviderId = (typeof LLM_PROVIDER_IDS)[number];
 
@@ -43,7 +45,13 @@ const PROVIDER_IDS_BY_KIND: Record<ProviderKind, readonly string[]> = {
 };
 
 /** Suffixes recognised after `<PREFIX>_<PROVIDER>`; anything else is reported as unknown. */
-const KNOWN_SUFFIXES = ["", "_ENABLED", "_API_KEY", "_BASE_URL", "_ORG", "_TIMEOUT_MS", "_MAX_CONCURRENCY", "_EXTRA_MODELS"] as const;
+const KNOWN_SUFFIXES = ["", "_ENABLED", "_API_KEY", "_BASE_URL", "_ORG", "_TIMEOUT_MS", "_MAX_CONCURRENCY", "_RPM", "_EXTRA_MODELS"] as const;
+
+/**
+ * Instance settings whose names start like a provider variable but are not one. Listed
+ * explicitly so a future prefix change cannot turn them into "unknown variable" noise.
+ */
+const NON_PROVIDER_VARIABLES: ReadonlySet<string> = new Set(["IMAGES_FROM_WEB_SEARCH"]);
 
 const TRUTHY = new Set(["true", "1", "yes", "on"]);
 
@@ -80,8 +88,11 @@ export interface ProviderEntry {
   /** Base URL with any `user:password@` stripped. */
   baseUrl?: string;
   org?: string;
+  /** First-byte timeout override (`LLM_<P>_TIMEOUT_MS`). */
   timeoutMs?: number;
   maxConcurrency?: number;
+  /** Requests per minute (`LLM_<P>_RPM`); absent = the catalog default, if any. */
+  rpm?: number;
   extraModels?: ExtraModel[];
   /** Why the status is what it is, plus warnings. Never contains a key value. */
   reasons: string[];
@@ -193,7 +204,7 @@ function parseOne(env: Env, kind: ProviderKind, id: string): ParsedProvider {
   }
   const orgRaw = env[`${envName}_ORG`];
   if (present(orgRaw)) entry.org = unquote(orgRaw);
-  for (const [suffix, field] of [["_TIMEOUT_MS", "timeoutMs"], ["_MAX_CONCURRENCY", "maxConcurrency"]] as const) {
+  for (const [suffix, field] of [["_TIMEOUT_MS", "timeoutMs"], ["_MAX_CONCURRENCY", "maxConcurrency"], ["_RPM", "rpm"]] as const) {
     const raw = env[`${envName}${suffix}`];
     if (!present(raw)) continue;
     const parsed = positiveIntSchema.safeParse(unquote(raw));
@@ -249,6 +260,7 @@ function parseOne(env: Env, kind: ProviderKind, id: string): ParsedProvider {
 function findUnknownVariables(env: Env): string[] {
   const unknown: string[] = [];
   for (const name of Object.keys(env).sort()) {
+    if (NON_PROVIDER_VARIABLES.has(name)) continue;
     for (const kind of Object.keys(PROVIDER_ENV_PREFIX) as ProviderKind[]) {
       const prefix = `${PROVIDER_ENV_PREFIX[kind]}_`;
       if (!name.startsWith(prefix)) continue;

@@ -1,0 +1,5 @@
+{"model":"z-ai/glm-5.3","stream":true,"stream_options":{"include_usage":true},"max_tokens":1024,
+ "messages":[{"role":"system","content":"You are a coding agent. Use tools when needed. Be brief."},
+             {"role":"user","content":"Read the file src/app/page.tsx using the tool."}],
+ "tools":[{"type":"function","function":{"name":"read_file","description":"Read a file from the project","parameters":{"type":"object","properties":{"path":{"type":"string"}},"required":["path"],"additionalProperties":false}}}],
+ "tool_choice":"auto"}

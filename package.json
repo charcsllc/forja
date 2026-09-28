@@ -13,6 +13,7 @@
     "test": "npm run test --workspaces --if-present",
     "start": "npm run start -w @forja/web",
     "agents:eval": "npm run eval -w @forja/agents --",
+    "llm:smoke": "npm run llm:smoke -w @forja/llm --",
     "contract:check": "npm run contract:check -w @forja/contract-tests --",
     "audit": "npm audit"
   },

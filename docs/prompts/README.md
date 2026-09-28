@@ -6,7 +6,7 @@ Cada agente recibe un prompt de sistema ensamblado en este orden:
 2. `roles/<rol>.md`: misión, entradas, salidas, proceso, reglas y formato de entrega del rol.
 3. `providers/<proveedor>.md`: instrucciones específicas del proveedor que ejecuta el rol
    (formato de herramientas, thinking, límites, manías conocidas). Para agregadores y
-   locales (`openrouter`, `together`, `fireworks`, `ollama`, `lmstudio`, `vllm`) se añade a
+   locales (`nvidia`, `openrouter`, `together`, `fireworks`, `ollama`, `lmstudio`, `vllm`) se añade a
    continuación el fichero de la **familia** del modelo (`zai`, `qwen`, `deepseek`,
    `moonshot`, `minimax`, `mistral`, `anthropic`, `openai`, `google`).
 4. Sección "Tool protocol" (solo si el adaptador usa XML, `02 §5`).
@@ -46,7 +46,7 @@ persona base). Los ficheros aquí son la fuente; `packages/agents` los empaqueta
 
 `providers/anthropic.md`, `openai.md`, `google.md`, `zai.md`, `qwen.md`, `deepseek.md`,
 `moonshot.md`, `minimax.md`, `mistral.md`, `xai.md`, `groq.md`, `together.md`,
-`fireworks.md`, `openrouter.md`, `ollama.md`, `lmstudio.md`, `vllm.md`.
+`fireworks.md`, `nvidia.md`, `openrouter.md`, `ollama.md`, `lmstudio.md`, `vllm.md`.
 
 ## Convenciones al editar un prompt
 

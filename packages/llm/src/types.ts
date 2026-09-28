@@ -70,9 +70,17 @@ export interface GenerateRequest {
 export type FinishReason = "stop" | "tool-calls" | "length" | "refusal" | "error";
 
 export type GenerateEvent =
+  /**
+   * Always the first event of a generation: which `provider`/`model` serves it. A later
+   * `route` (higher `attempt`) only ever arrives before any other event of that attempt:
+   * the previous attempt failed before producing output and the gateway retried or fell
+   * back, so nothing already received has to be discarded.
+   */
+  | { type: "route"; provider: string; model: string; attempt: number }
   | { type: "text-delta"; text: string }
   | { type: "reasoning-delta"; text: string }
   | { type: "tool-call"; id: string; name: string; args: unknown }
+  /** `input` excludes `cachedInput` (uncached prompt tokens only); `output` includes reasoning. */
   | { type: "usage"; input: number; output: number; cachedInput: number; cacheWrite: number; costUsd: number }
   | { type: "finish"; reason: FinishReason }
   | { type: "provider-message"; raw: unknown };

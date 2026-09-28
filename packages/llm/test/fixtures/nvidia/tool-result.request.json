@@ -1,0 +1,8 @@
+{"model":"z-ai/glm-5.3","stream":true,"stream_options":{"include_usage":true},"max_tokens":1024,
+ "messages":[{"role":"system","content":"You are a coding agent. Use tools when needed. Be brief."},
+             {"role":"user","content":"Read the file src/app/page.tsx using the tool."},
+             {"role":"assistant","content":"","tool_calls":[{"id":"b29e0ede-031a-47f7-9810-f00f5eeb022f","type":"function","function":{"name":"read_file","arguments":"{\"path\":\"src/app/page.tsx\"}"}}]},
+             {"role":"tool","tool_call_id":"b29e0ede-031a-47f7-9810-f00f5eeb022f","content":"export default function Page() { return <h1>Hello</h1>; }"},
+             {"role":"user","content":"In one sentence: what does the page render?"}],
+ "tools":[{"type":"function","function":{"name":"read_file","description":"Read a file from the project","parameters":{"type":"object","properties":{"path":{"type":"string"}},"required":["path"],"additionalProperties":false}}}],
+ "tool_choice":"auto"}
