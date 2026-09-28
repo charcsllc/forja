@@ -9,3 +9,4 @@ export * from "./reports";
 export * from "./events";
 export * from "./messages/index";
 export * from "./slug";
+export * from "./media";

@@ -3,7 +3,8 @@
  *
  * Boot: config → logger → keys → DATA_DIR check → host-path check (04 §1) → `forja-apps`
  * → migrations → queue → jobs → resume interrupted operations → re-attach to project
- * networks → HTTP.
+ * networks → recover agent runs → HTTP. The LLM gateway is created after the keys; a bad
+ * LLM configuration is logged and disables agent runs only (services/llm.ts).
  * SIGTERM/SIGINT: stop accepting requests, drain the queue, close pools, exit.
  */
 import { existsSync } from "node:fs";
@@ -26,6 +27,10 @@ import type { EngineContext } from "./services/context.js";
 import { dbPasswords } from "./services/lifecycle.js";
 import { GitProjectRepo } from "./services/repo.js";
 import { SecretBox, SecretsService } from "./services/secrets.js";
+import { SettingsService } from "./services/settings.js";
+import { createLlmService } from "./services/llm.js";
+import { recoverRuns } from "./services/runs/service.js";
+import { createImageSourcing } from "@forja/media";
 import { publicFileUrl, UPLOAD_URL_TTL_SECONDS } from "./services/uploads.js";
 import { PgStore } from "./store/pg.js";
 import { ENGINE_VERSION } from "./version.js";
@@ -75,6 +80,37 @@ async function main(): Promise<void> {
     probe: networkProbe(),
   });
 
+  const settings = new SettingsService(store, logger);
+  const imageSourcing = createImageSourcing({
+    env: { ...config.rawProviderEnv, IMAGES_FROM_WEB_SEARCH: String(config.IMAGES_FROM_WEB_SEARCH) },
+    settings,
+    logger: logger.child({ component: "media" }),
+    // The ledger (02 §7): one `media_calls` row per search or generation, charged to the run.
+    onCall: (call) =>
+      store
+        .insertMediaCall({
+          projectId: call.projectId,
+          runId: call.runId,
+          provider: call.provider,
+          kind: call.kind,
+          model: call.model ?? null,
+          units: call.units,
+          costUsd: call.costUsd.toFixed(6),
+          latencyMs: Math.round(call.latencyMs),
+          outcome: call.outcome,
+          error: call.error ?? null,
+        })
+        .catch((err: unknown) => logger.warn({ err, mediaCall: { provider: call.provider, outcome: call.outcome } }, "could not record a media call")),
+  });
+  logger.info(
+    { imagesFromWebSearch: config.IMAGES_FROM_WEB_SEARCH, searchProviders: imageSourcing.searchProviders },
+    "image sourcing ready (the UI may override the mode)",
+  );
+
+  // LLM gateway + agent roles (phase 2). A configuration that cannot serve the roles keeps
+  // the engine up; agent/start explains what to configure (services/llm.ts).
+  const llm = createLlmService({ env: process.env, logger });
+
   // The CMS needs the context (secrets, config) and the context needs the CMS: late-bound.
   const ctx: EngineContext = {
     config,
@@ -86,6 +122,9 @@ async function main(): Promise<void> {
     repo: (projectId) => new GitProjectRepo(config.DATA_DIR, projectId, logger),
     queue: pgBossQueue,
     cms: undefined as unknown as EngineContext["cms"],
+    settings,
+    imageSourcing,
+    llm,
     selfContainer: selfContainer(config.ENGINE_CONTAINER),
     probe: networkProbe(),
   };
@@ -110,6 +149,8 @@ async function main(): Promise<void> {
   const resumed = await resumeOperations(ctx);
   if (resumed.resumed.length || resumed.failed.length) logger.warn(resumed, "operations left by the previous process");
   await reattachActive(ctx).catch((err: unknown) => logger.warn({ err }, "could not re-attach to project networks"));
+  const runs = await recoverRuns(ctx);
+  if (runs.requeued.length || runs.closed.length) logger.warn(runs, "agent runs left by the previous process");
 
   const app = createApp({
     config,

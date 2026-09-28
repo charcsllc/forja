@@ -174,6 +174,15 @@ export const DesignReviewSchema = z.object({
 });
 export type DesignReview = z.infer<typeof DesignReviewSchema>;
 
+// ─── submit_message (director) ───────────────────────────────────────────────
+
+/**
+ * The director's message to the user: the answer to a question or the closing message of
+ * a run. Plain words in the user's language; light markdown (**bold**, [text](url), `code`).
+ */
+export const DirectorMessageSchema = z.object({ text: z.string().min(1) });
+export type DirectorMessage = z.infer<typeof DirectorMessageSchema>;
+
 // ─── submit_summary (summarizer) ─────────────────────────────────────────────
 
 export const SummarySchema = z.object({ text: z.string().min(1) });

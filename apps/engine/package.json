@@ -24,9 +24,12 @@
     "pino-pretty": "^13.1.3"
   },
   "dependencies": {
+    "@forja/agents": "0.0.0",
     "@forja/contracts": "0.0.0",
     "@forja/db-cms": "0.0.0",
     "@forja/git": "0.0.0",
+    "@forja/llm": "0.0.0",
+    "@forja/media": "0.0.0",
     "@forja/sandbox": "0.0.0",
     "@hono/node-server": "^2.1.1",
     "dockerode": "^5.0.1",

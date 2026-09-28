@@ -5,12 +5,12 @@ Forja Engine (`engine`), its Postgres, Traefik, a Docker socket proxy and the br
 sidecar. Design: `docs/architecture/01-system-architecture.md`, `04-sandbox-preview-deploy.md`
 (§1 networks, §4 Traefik) and `07-security-and-privacy.md` (§1 threat model).
 
-> **Phase 1 status.** The UI talks to the engine (no Totalum key needed). The engine
+> **Phase 2 status.** The UI talks to the engine (no Totalum key needed). The engine
 > creates projects from `templates/nextjs-postgres`, runs each one in hardened Docker
-> sandboxes with its own Postgres (migrated and seeded), serves previews through Traefik
-> and through `/v2/projects/:id/preview/*`, and implements the v1 file, version, restore,
-> rebuild, restart, upload, source-code, logs, secrets and database endpoints. The AI
-> agents arrive in **phase 2**: until then `agent/start` answers `NOT_IMPLEMENTED`.
+> sandboxes with its own Postgres, serves previews through Traefik, and implements the v1
+> API. Prompts now run the agent team (director, frontend, backend, database, fixer,
+> summarizer) over the providers enabled in `infra/.env` (`LLM_<P>="true|<key>"`); with no
+> provider enabled, `agent/start` answers `NO_PROVIDER_ENABLED` and names what to set.
 > Images needed: `docker compose build engine web` and
 > `docker build -t forja-runner:1.0.0 -f infra/images/runner/Dockerfile .`.
 

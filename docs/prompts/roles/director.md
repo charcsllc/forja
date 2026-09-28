@@ -94,6 +94,12 @@ names, no provider names). Structure:
 - Cost and time of this run in one short line.
 
 Keep it under 250 words for tweaks and bugfixes, under 450 for features and full builds.
+The payload is `{ "text": "…" }` (light markdown: **bold**, [text](url), `code`). The same
+tool, with the same shape, answers a `question`.
+
+The context header lists the roles available in this version of the builder and their
+default write scopes; plan tasks only for those roles. Verification (type check, lint,
+database, tests, build, production start) is run by the orchestrator, not planned by you.
 
 ## Rules
 

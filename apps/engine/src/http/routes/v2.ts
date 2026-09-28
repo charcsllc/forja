@@ -1,9 +1,12 @@
 /**
  * API v2 (plain JSON, 05 §3), phase 1 slice:
  *   ALL  /v2/projects/:id/preview[/*]   internal preview proxy for the UI server (04 §4)
- *   GET  /v2/projects/:id/budget        the budget page's report (zeros until phase 2's ledger)
+ *   GET  /v2/projects/:id/budget        the budget page's report (runs.spent_usd, charged from llm_calls)
  *   POST /v2/projects/:id/undelete      within PROJECT_PURGE_AFTER_DAYS of a delete
  *   POST /v2/projects/:id/archive       put an Active project to sleep now (ops/tests; phase 4 adds the idle timer)
+ *   GET  /v2/system/models              LLM/image/stock providers and role assignments (C3; no keys)
+ *   GET|PUT /v2/system/settings         instance settings the UI can change (`images.mode`, 05 §3)
+ *   DELETE  /v2/system/settings/images  drop the UI override: back to IMAGES_FROM_WEB_SEARCH
  *
  * ⚠️ Preview proxy: `*.localhost` does not resolve inside containers, so the UI server asks
  * the engine, which forwards over `forja-apps` to `forja-app-<id>:3000` (or
@@ -18,6 +21,8 @@ import type { AppDeps } from "../app.js";
 import { EngineError } from "../errors.js";
 import { startArchive, undeleteProject } from "../../services/lifecycle.js";
 import { toProject } from "../../services/projects.js";
+import { ImageSourceModeSchema } from "@forja/contracts/media";
+import { z } from "zod";
 
 const HOP_BY_HOP = new Set([
   "connection",
@@ -151,6 +156,32 @@ export function v2Routes(deps: AppDeps): Hono {
     if (!p) throw new EngineError(404, "PROJECT_NOT_FOUND", "Project not found");
     await startArchive(ctx, p);
     return c.json({ projectId: p.id, status: "Archiving" });
+  });
+
+  // ── Instance settings (contract C4). The UI override wins over the env until deleted. ──
+  const settingsBody = z.object({ images: z.object({ mode: ImageSourceModeSchema }).strict() }).strict();
+  const settingsView = async (c: Context) => {
+    c.header("Cache-Control", "no-store");
+    return c.json({ images: await ctx.imageSourcing.setting() });
+  };
+  // ── LLM and media providers, role assignments (contract C3). Never a key. ──
+  r.get("/system/models", (c) => {
+    c.header("Cache-Control", "no-store");
+    return c.json(ctx.llm.systemModels(ctx.imageSourcing));
+  });
+
+  r.get("/system/settings", settingsView);
+  r.put("/system/settings", async (c) => {
+    const parsed = settingsBody.safeParse(await c.req.json().catch(() => undefined));
+    if (!parsed.success) {
+      throw new EngineError(400, "VALIDATION", "Body must be {\"images\":{\"mode\":\"web-search\"|\"generate\"}}");
+    }
+    await ctx.settings.setImageMode(parsed.data.images.mode);
+    return settingsView(c);
+  });
+  r.delete("/system/settings/images", async (c) => {
+    await ctx.settings.clearImageMode();
+    return settingsView(c);
   });
 
   return r;

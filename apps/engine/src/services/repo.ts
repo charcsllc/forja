@@ -12,6 +12,13 @@ import type { RepoPort } from "./context.js";
 
 const REF_RE = /^[A-Za-z0-9][A-Za-z0-9._/^~-]{0,199}$/;
 
+/** A path argument after `--`: relative, no `..`, no NUL. */
+function safePathArg(p: string): string {
+  const v = p.trim().replace(/^\.\//, "");
+  if (!v || v.startsWith("/") || v.includes("\0") || v.split("/").includes("..")) throw new Error(`invalid path: ${p}`);
+  return v;
+}
+
 export function projectRoot(dataDir: string, projectId: string): string {
   return path.join(dataDir, "projects", projectId);
 }
@@ -94,6 +101,48 @@ export class GitProjectRepo implements RepoPort {
 
   lockfileChanged(from: string, to: string) {
     return this.repo.lockfileChanged(from, to);
+  }
+
+  // ── Runs ─────────────────────────────────────────────────────────────────
+
+  ensureRunCheckout(runId: string) {
+    return this.repo.ensureRunCheckout(runId);
+  }
+
+  removeRunCheckout(runId: string, opts?: { deleteBranch?: boolean }) {
+    return this.repo.removeRunCheckout(runId, opts);
+  }
+
+  async commitRun(message: string): Promise<string | null> {
+    return (await this.repo.commitAll("run", message))?.commitSha ?? null;
+  }
+
+  mergeRun(runId: string, opts?: { message?: string }) {
+    return this.repo.mergeRun(runId, opts);
+  }
+
+  async runDiff({ from, to, path: sub }: { from: string; to?: string; path?: string }): Promise<string> {
+    for (const ref of [from, to]) if (ref !== undefined && (!REF_RE.test(ref) || ref.includes(".."))) throw new Error(`invalid ref: ${ref}`);
+    const pathArgs = sub ? ["--", safePathArg(sub)] : [];
+    if (to) {
+      const out = await this.git.run(["diff", "--no-color", "--end-of-options", from, to, ...pathArgs], { cwd: this.repoDir });
+      return out.stdout.toString("utf8");
+    }
+    const runDir = path.join(this.root, "run");
+    // Untracked files only show up in a diff once staged; commits stage everything anyway.
+    await this.git.run(["add", "-A"], { cwd: runDir });
+    const out = await this.git.run(["diff", "--no-color", "--cached", "--end-of-options", from, ...pathArgs], { cwd: runDir });
+    return out.stdout.toString("utf8");
+  }
+
+  async logText({ limit, path: sub }: { limit: number; path?: string }): Promise<string> {
+    await this.repo.flush();
+    const n = Math.min(Math.max(1, Math.floor(limit)), 200);
+    const out = await this.git.run(
+      ["log", "--first-parent", `--max-count=${n}`, "--format=%h %cs %s", "main", ...(sub ? ["--", safePathArg(sub)] : [])],
+      { cwd: this.repoDir },
+    );
+    return out.stdout.toString("utf8");
   }
 
   async changedFiles(from: string, to: string): Promise<string[]> {

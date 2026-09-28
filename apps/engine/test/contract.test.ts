@@ -6,6 +6,7 @@
 import { describe, expect, it } from "vitest";
 import {
   createClient,
+  simulateAgentStart,
   simulateLaunch,
   simulateRebuild,
   simulateRestart,
@@ -14,6 +15,7 @@ import {
   type SimulationResult,
 } from "@forja/contract-tests";
 import { ENGINE_KEY, activeProject, makeTestEngine, type TestEngine } from "./fakes.js";
+import { scriptedTeam } from "./support/scripted-team.js";
 
 const fast = { intervalMs: 20, maxAttempts: 200, capMs: 5_000 };
 
@@ -72,13 +74,38 @@ describe("contract simulators (in-process)", () => {
     expect(r.outcome).toBe("awake");
   });
 
-  it("launch: phase 1 creates the project and returns agent.started=false; agent/start is 501", async () => {
+  it("launch with a scripted team: init before answering, a run to done, a terminal message", async () => {
+    const llm = scriptedTeam();
+    const e = makeTestEngine({ repo: "fake", llm });
+    e.queue.auto = true;
+    const r = await simulateLaunch(clientFor(e), { projectId: "sim-launch", prompt: "Add an about page" }, fast);
+    expect(r.ok, show(r)).toBe(true);
+    expect(r.outcome).toBe("done");
+    expect(r.details.sentPendingPrompt).toBeUndefined();
+    expect(r.details.finalMessageType).toBe("finished");
+    expect(r.details.sawInit).toBe(true);
+    // The page reached main through a merge, and the version carries the checks.
+    const tree = (await e.json("GET", "/v1/projects/sim-launch/files/tree")).body.data.entries.map((x: { path: string }) => x.path);
+    expect(tree).toContain("src/app/about/page.tsx");
+    expect(e.store.versionRows.at(-1)?.checks).toMatchObject({ gates: [{ name: "typecheck", passed: true }, { name: "lint", passed: true }, { name: "build", passed: true }] });
+  });
+
+  it("agent/start with a scripted team", async () => {
+    const e = makeTestEngine({ repo: "fake", llm: scriptedTeam() });
+    const id = await activeProject(e, "sim-start");
+    e.queue.auto = true;
+    const r = await simulateAgentStart(clientFor(e), id, "Add an about page", fast);
+    expect(r.ok, show(r)).toBe(true);
+    expect(r.outcome).toBe("done");
+  });
+
+  it("launch without a provider: agent.started=false and agent/start explains what to configure", async () => {
     const e = makeTestEngine({ repo: "fake" });
     e.queue.auto = true;
-    const r = await simulateLaunch(clientFor(e), { projectId: "sim-launch", prompt: "A bakery" }, { ...fast, waitForRun: false });
+    const r = await simulateLaunch(clientFor(e), { projectId: "sim-nollm", prompt: "A bakery" }, { ...fast, waitForRun: false });
     expect(r.details.sentPendingPrompt).toBe(true);
     expect(r.outcome).toBe("start-failed");
     expect(r.violations.map((v) => v.code)).toEqual(["REQUEST_FAILED"]);
-    expect(r.violations[0]?.message).toContain("NOT_IMPLEMENTED");
+    expect(r.violations[0]?.message).toContain("NO_PROVIDER_ENABLED");
   });
 });

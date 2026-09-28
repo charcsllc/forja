@@ -16,6 +16,14 @@ export const es: Readonly<Record<MessageKey, string>> = {
     "Algo falló por nuestra parte: {cause}. Tu proyecto está a salvo; puedes volver a intentarlo.",
   "run.noProvider":
     "No hay ningún proveedor de IA configurado, así que no se pudo construir nada. Pide al administrador que active uno y vuelve a intentarlo.",
+  "run.rolesUnsatisfiable":
+    "El equipo de IA no está configurado del todo, así que no se empezó nada. El administrador debe corregirlo en la configuración del motor: {details}",
+  "run.interrupted": "El trabajo se interrumpió porque el constructor se reinició. Tu proyecto está a salvo; vuelve a enviar tu petición.",
+  "run.finished": "Listo: {summary}",
+  "run.finishedWithFailures":
+    "La nueva versión está guardada, pero algunas comprobaciones no pasaron: {failed}. Puedes pedirme que las arregle.",
+  "run.nothingChanged": "Terminé sin cambiar ningún fichero. {summary}",
+  "run.questionFallback": "Esta vez no pude preparar una respuesta. Vuelve a preguntar, por favor.",
 
   "phase.received": "Petición recibida",
   "phase.directing": "Analizando tu petición…",
@@ -55,4 +63,10 @@ export const es: Readonly<Record<MessageKey, string>> = {
   "task.summarizer": "Resumiendo el progreso",
 
   "gates.progress": "Comprobando {done} de {total} verificaciones",
+  "gate.typecheck": "comprobación de tipos",
+  "gate.lint": "estilo del código",
+  "gate.database": "migraciones y datos de ejemplo",
+  "gate.tests": "pruebas automáticas",
+  "gate.build": "compilación de producción",
+  "gate.start": "arranque en producción",
 };

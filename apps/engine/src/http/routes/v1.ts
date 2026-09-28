@@ -1,9 +1,10 @@
 /**
  * API v1: the Totalum-compatible surface the UI talks to (envelope `{errors, data}`,
- * docs/research/02, 05 §2). Phase 1: projects, sandbox lifecycle, files, versions,
- * secrets, uploads, logs, database, the signed public surface and the stubs of 05 §2.1.
- * The agent arrives in phase 2 (`agent/start` answers NOT_IMPLEMENTED; status and
- * conversation answer "idle, empty" so the workspace loads).
+ * docs/research/02, 05 §2). Projects, sandbox lifecycle, files, versions, secrets,
+ * uploads, logs, database, the signed public surface and the stubs of 05 §2.1 (phase 1),
+ * and the agent: launch, agent/start|stop|status, full-conversation (phase 2,
+ * services/runs). While a run works, file writes, rebuilds and restores answer
+ * AGENT_RUNNING (03 §8).
  *
  * ⚠️ Every sandbox- or DB-needing endpoint goes through `requireLive` (05 §2.2): asleep →
  * wake + 409 SERVER_NOT_READY; git-only endpoints answer without waking.
@@ -35,6 +36,7 @@ import {
 import { RESERVED_SECRET_NAMES, SECRET_NAME_RE, toDotenv, type SecretEnvironment } from "../../services/secrets.js";
 import { publicFileUrl, storeUpload } from "../../services/uploads.js";
 import type { EngineContext } from "../../services/context.js";
+import { agentStatus, fullConversation, startRun, stopRun } from "../../services/runs/service.js";
 
 const SOURCE_URL_TTL_SECONDS = 30 * 60;
 const CLIENT_HEADER = "x-forja-client";
@@ -53,6 +55,29 @@ function decodeContent(content: unknown, encoding: unknown): Uint8Array {
   const compact = content.replace(/\s+/g, "");
   if (compact.length % 4 === 1 || !BASE64_RE.test(compact)) throw new EngineError(400, "INVALID_CONTENT", "content is not valid base64");
   return Buffer.from(compact, "base64");
+}
+
+/** 03 §8: manual writes, rebuilds and restores wait while a run works on the project. */
+function refuseDuringRun(p: { processStatus: string }): void {
+  if (p.processStatus === "init") throw engineError("AGENT_RUNNING", "The agent is working on this project; wait until it finishes.");
+}
+
+type InputFile = { name: string; url: string; imageDescription: string };
+
+/** `agent/start.inputFiles` (research/02 §5): keeps well-formed entries only. */
+function inputFiles(v: unknown): InputFile[] {
+  if (!Array.isArray(v)) return [];
+  return v
+    .filter((f): f is Record<string, unknown> => !!f && typeof f === "object")
+    .filter((f) => typeof f.name === "string" && typeof f.url === "string")
+    .map((f) => ({ name: f.name as string, url: f.url as string, imageDescription: typeof f.imageDescription === "string" ? f.imageDescription : "" }))
+    .slice(0, 20);
+}
+
+/** `launch.files` (`{name, description?, url}`) → the agent/start shape. */
+function launchFiles(v: unknown): InputFile[] {
+  if (!Array.isArray(v)) return [];
+  return inputFiles(v.map((f) => (f && typeof f === "object" ? { ...(f as object), imageDescription: (f as { description?: unknown }).description } : f)));
 }
 
 async function requireRepo(ctx: EngineContext, projectId: string) {
@@ -136,16 +161,24 @@ export function v1Routes(deps: AppDeps): Hono {
     if (b.figma) {
       warnings.push({ step: "figma", code: "NOT_IMPLEMENTED", message: "Figma import arrives in a later engine version." });
     }
-    warnings.push({
-      step: "agent",
-      code: "NOT_IMPLEMENTED",
-      message: "The AI agent arrives in phase 2; the project was created and its prompt was not run.",
-      endpoint: `/projects/${project.id}/agent/start`,
-    });
+    // The run is created now (agentProcessStatus = init before we answer); it waits for the
+    // sandbox the provision job is creating. If it cannot start, the workspace sends the
+    // stashed prompt itself (agent.started = false) and gets the reason from agent/start.
+    let agent: { started: boolean; status: string; message?: string } = { started: false, status: "idle" };
+    try {
+      const fresh = (await ctx.store.getProject(project.id)) ?? project;
+      const started = await startRun(ctx, fresh, { prompt, inputFiles: launchFiles(b.files) });
+      warnings.push(...started.warnings);
+      agent = { started: true, status: "init" };
+    } catch (err) {
+      if (!(err instanceof EngineError)) throw err;
+      warnings.push({ step: "agent", code: err.code, message: err.message, endpoint: `/projects/${project.id}/agent/start` });
+      agent = { started: false, status: "idle", message: err.message };
+    }
     return ok(c, {
       projectId: project.id,
       ...(requestedProjectId !== project.id ? { requestedProjectId } : {}),
-      agent: { started: false, status: "idle", message: "The agent is not available in this engine version." },
+      agent,
       warnings,
     });
   });
@@ -162,37 +195,45 @@ export function v1Routes(deps: AppDeps): Hono {
 
   r.delete("/projects/:id", async (c) => {
     const p = await getLiveProject(ctx, c.req.param("id"));
+    // A run working on the project is stopped first (no merge; its branch goes with the repo).
+    await stopRun(ctx, p).catch((err: unknown) => {
+      if (!(err instanceof EngineError && err.code === "NO_PROCESS_RUNNING")) throw err;
+    });
     await deleteProject(ctx, p);
     return ok(c, { projectId: p.id, deleted: true });
   });
 
-  // ── Agent (phase 2) ───────────────────────────────────────────────────────
+  // ── Agent (phase 2: services/runs) ────────────────────────────────────────
 
   r.get("/projects/:id/agent/status", async (c) => {
     const p = await getLiveProject(ctx, c.req.param("id"));
-    return ok(c, {
-      projectId: p.id,
-      status: p.processStatus === "init" ? "init" : "idle",
-      startedAt: null,
-      realtimeConversation: [],
-      expectedMinutes: null,
-      expectedFinishAt: null,
-    });
+    return ok(c, await agentStatus(ctx, p));
   });
 
   r.get("/projects/:id/agent/full-conversation", async (c) => {
-    await getLiveProject(ctx, c.req.param("id"));
-    return ok(c, { conversation: [], totalCount: 0, hasMore: false });
+    const p = await getLiveProject(ctx, c.req.param("id"));
+    const q = c.req.query();
+    return ok(c, await fullConversation(ctx, p, { limit: intParam(q.limit, { min: 1, max: 10_000 }), offsetFromEnd: intParam(q.offsetFromEnd) }));
   });
 
   r.post("/projects/:id/agent/start", async (c) => {
-    await getLiveProject(ctx, c.req.param("id"));
-    throw notImplemented("The AI agent (agent/start)");
+    const p = await getLiveProject(ctx, c.req.param("id"));
+    const b = await body(c);
+    const prompt = str(b.prompt);
+    if (!prompt || !prompt.trim()) throw new EngineError(400, "MISSING_PROMPT", "prompt is required");
+    const { run, warnings } = await startRun(ctx, p, {
+      prompt,
+      inputFiles: inputFiles(b.inputFiles),
+      ...("model" in b ? { model: b.model } : {}),
+      ...("effort" in b ? { effort: b.effort } : {}),
+      ...("fastMode" in b ? { fastMode: b.fastMode } : {}),
+    });
+    return ok(c, { started: true, status: "init", runId: run.id, warnings });
   });
 
   r.post("/projects/:id/agent/stop", async (c) => {
-    await getLiveProject(ctx, c.req.param("id"));
-    throw engineError("NO_PROCESS_RUNNING", "No agent run is in progress.");
+    const p = await getLiveProject(ctx, c.req.param("id"));
+    return ok(c, await stopRun(ctx, p));
   });
 
   r.post("/projects/:id/agent/server/start-or-restart", async (c) => {
@@ -231,7 +272,7 @@ export function v1Routes(deps: AppDeps): Hono {
     if (!filePath) throw new EngineError(400, "MISSING_PATH", "path is required");
     const bytes = decodeContent(b.content, b.encoding);
     await requireLive(ctx, p);
-    if (p.processStatus === "init") throw engineError("AGENT_RUNNING", "The agent is working on this project; wait until it finishes.");
+    refuseDuringRun(p);
     const repo = await requireRepo(ctx, p.id);
     const result = await git(() =>
       repo.writeFile(filePath, bytes, {
@@ -292,6 +333,7 @@ export function v1Routes(deps: AppDeps): Hono {
   r.post("/projects/:id/rebuild", async (c) => {
     const p = await getLiveProject(ctx, c.req.param("id"));
     await requireLive(ctx, p);
+    refuseDuringRun(p);
     return ok(c, await startRebuild(ctx, p));
   });
 
@@ -348,6 +390,7 @@ export function v1Routes(deps: AppDeps): Hono {
   r.post("/projects/:id/versions/:versionId/recover", async (c) => {
     const p = await getLiveProject(ctx, c.req.param("id"));
     await requireLive(ctx, p);
+    refuseDuringRun(p);
     const versionId = c.req.param("versionId");
     await startRestore(ctx, p, versionId);
     return ok(c, { versionId, status: "recovering" });

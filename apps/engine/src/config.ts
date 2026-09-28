@@ -85,6 +85,8 @@ const EnvSchema = z
     ENGINE_MAX_CONCURRENT_RUNS: int(2, 1),
     RUN_REQUIRE_PLAN_APPROVAL: bool(false),
     RUN_ALLOW_QUESTIONS: bool(false),
+    /** true → never use an image-generation model; search the web (02 §7). The UI can override it. */
+    IMAGES_FROM_WEB_SEARCH: bool(false),
     /** Docker endpoint (the socket proxy in compose). Not in 09 yet; unset = "unavailable". */
     DOCKER_HOST: optStr(),
 

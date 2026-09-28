@@ -5,7 +5,7 @@
  *
  * Protects: unit tests never touch Docker, Postgres or the network.
  */
-import { mkdtempSync, mkdirSync, writeFileSync } from "node:fs";
+import { mkdtempSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { randomBytes } from "node:crypto";
@@ -13,7 +13,8 @@ import { Readable } from "node:stream";
 import pino from "pino";
 import type { FileContent, FileTree } from "@forja/contracts/v1";
 import { GitError, isRebuildRequiredPath, type WriteFileOptions, type WriteFileResult } from "@forja/git";
-import type { ExecOptions, ExecResult, ProvisionOptions, ProvisionResult, WaitHttpResult } from "@forja/sandbox";
+import type { ExecOptions, ExecResult, ProvisionOptions, ProvisionResult, VerifyOptions, VerifyResult, WaitHttpResult } from "@forja/sandbox";
+import type { Provider } from "@forja/llm";
 import { parseConfig, type Config } from "../src/config.js";
 import { createApp } from "../src/http/app.js";
 import { JOB_HANDLERS } from "../src/jobs.js";
@@ -21,7 +22,11 @@ import type { CmsPort, LinkInput } from "../src/services/cms.js";
 import type { EngineContext, JobData, JobName, QueuePort, RepoPort, SandboxPort } from "../src/services/context.js";
 import { GitProjectRepo } from "../src/services/repo.js";
 import { SecretBox, SecretsService } from "../src/services/secrets.js";
+import { SettingsService } from "../src/services/settings.js";
+import { createImageSourcing } from "@forja/media";
 import { MemoryStore } from "../src/store/memory.js";
+import { createTestLlmService } from "../src/services/llm.js";
+import type { RunEnvironmentFactory } from "../src/services/runs/environment.js";
 
 export const ENGINE_KEY = "test-engine-key-0123456789abcdef";
 
@@ -45,6 +50,9 @@ export class FakeSandbox implements SandboxPort {
   ready = true;
   /** exit code per argv[0..2] joined, e.g. "npm ci" or "npm run" */
   execExit: Record<string, number> = {};
+  /** Per-command answers (e.g. a failing gate): return undefined to fall back to `execExit`. */
+  execHandler: ((container: string, argv: readonly string[]) => Partial<ExecResult> | undefined) | null = null;
+  readonly verifies = new Map<string, string>();
   provisionError: Error | null = null;
   networks = new Set<string>(["forja-apps"]);
 
@@ -127,9 +135,27 @@ export class FakeSandbox implements SandboxPort {
   async exec(container: string, argv: readonly string[], _options?: ExecOptions): Promise<ExecResult> {
     this.execs.push({ container, argv });
     this.calls.push(`exec:${container}:${argv.slice(0, 3).join(" ")}`);
+    const custom = this.execHandler?.(container, argv);
+    if (custom) return { exitCode: 0, stdout: "", stderr: "", truncated: false, timedOut: false, durationMs: 1, ...custom };
     const key = argv.slice(0, 2).join(" ");
     const exitCode = this.execExit[key] ?? 0;
     return { exitCode, stdout: "", stderr: exitCode ? "boom" : "", truncated: false, timedOut: false, durationMs: 1 };
+  }
+
+  async createVerify(projectId: string, runId: string, _options: VerifyOptions): Promise<VerifyResult> {
+    this.calls.push(`createVerify:${projectId}:${runId}`);
+    this.verifies.set(projectId, runId);
+    return {
+      container: `forja-verify-${projectId}`,
+      database: `verify_${runId}`,
+      databaseUrl: `postgres://app_rw:x@forja-db-${projectId}:5432/verify_${runId}`,
+      internalUrl: `http://forja-verify-${projectId}:3000`,
+    };
+  }
+
+  async destroyVerify(projectId: string, runId: string): Promise<void> {
+    this.calls.push(`destroyVerify:${projectId}:${runId}`);
+    this.verifies.delete(projectId);
   }
 
   async logs(container: string): Promise<string> {
@@ -302,7 +328,66 @@ export class FakeRepo implements RepoPort {
     const b = this.find(to)?.files.get("package-lock.json");
     return !(a && b && a.equals(b));
   }
+  // ── Runs: `run/` is a real temp folder (agents write files through LocalWorkspace) ──
+  private runDir: { runId: string; dir: string; base: string } | null = null;
+
+  private readRunDir(): Map<string, Buffer> {
+    const out = new Map<string, Buffer>();
+    if (!this.runDir) return out;
+    const walk = (abs: string, rel: string) => {
+      for (const name of readdirSync(abs)) {
+        const a = path.join(abs, name);
+        const r = rel ? `${rel}/${name}` : name;
+        if (statSync(a).isDirectory()) walk(a, r);
+        else out.set(r, readFileSync(a));
+      }
+    };
+    walk(this.runDir.dir, "");
+    return out;
+  }
+
+  async ensureRunCheckout(runId: string) {
+    if (!this.runDir || this.runDir.runId !== runId) {
+      const dir = mkdtempSync(path.join(tmpdir(), "forja-fakerun-"));
+      for (const [p, b] of this.work) {
+        mkdirSync(path.dirname(path.join(dir, p)), { recursive: true });
+        writeFileSync(path.join(dir, p), b);
+      }
+      this.runDir = { runId, dir, base: (await this.headSha()) ?? "" };
+    }
+    return { runId, branch: `run/${runId}`, path: this.runDir.dir, headSha: this.runDir.base };
+  }
+  async removeRunCheckout() {
+    if (this.runDir) rmSync(this.runDir.dir, { recursive: true, force: true });
+    this.runDir = null;
+  }
+  runCommits: string[] = [];
+  async commitRun(message: string) {
+    this.runCommits.push(message);
+    return randomBytes(20).toString("hex");
+  }
+  async mergeRun(runId: string) {
+    const files = this.readRunDir();
+    const changed = [...files].some(([p, b]) => !this.work.get(p)?.equals(b));
+    if (!changed) return { commitSha: (await this.headSha()) ?? "", tag: null, version: null, merged: false };
+    this.work = files;
+    const c = this.commit(`Merge run ${runId}`);
+    return { commitSha: c.sha, tag: c.tag, version: this.commits.length, merged: true };
+  }
+  async runDiff() {
+    return "";
+  }
+  async logText() {
+    return this.commits.map((c) => `${c.sha.slice(0, 7)} ${c.message}`).reverse().join("\n");
+  }
+
   async changedFiles(from: string, to: string) {
+    if (to.startsWith("run/")) {
+      const base = this.find(from)?.files ?? new Map<string, Buffer>();
+      const run = this.readRunDir();
+      const keys = new Set([...base.keys(), ...run.keys()]);
+      return [...keys].filter((k) => !(base.get(k) && run.get(k) && base.get(k)?.equals(run.get(k) as Buffer)));
+    }
     const a = this.find(from)?.files ?? new Map<string, Buffer>();
     const b = this.find(to)?.files ?? new Map<string, Buffer>();
     const keys = new Set([...a.keys(), ...b.keys()]);
@@ -403,7 +488,15 @@ export interface TestEngine {
   json(method: string, path: string, body?: unknown): Promise<{ status: number; body: any }>; // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
-export function makeTestEngine(opts: { repo?: "git" | "fake"; env?: Record<string, string> } = {}): TestEngine {
+export interface TestEngineOptions {
+  repo?: "git" | "fake";
+  env?: Record<string, string>;
+  /** The LLM the agents talk to (scripted/replay). Absent = no provider configured. */
+  llm?: Provider;
+  runEnvironments?: RunEnvironmentFactory;
+}
+
+export function makeTestEngine(opts: TestEngineOptions = {}): TestEngine {
   const dataDir = mkdtempSync(path.join(tmpdir(), "forja-data-"));
   const parsed = parseConfig({
     DATA_DIR: dataDir,
@@ -422,6 +515,7 @@ export function makeTestEngine(opts: { repo?: "git" | "fake"; env?: Record<strin
   const cms = new FakeCms();
   const fakeRepos = new Map<string, FakeRepo>();
   const logger = pino({ level: "silent" });
+  const settings = new SettingsService(store, logger);
   const ctx: EngineContext = {
     config,
     store,
@@ -439,6 +533,17 @@ export function makeTestEngine(opts: { repo?: "git" | "fake"; env?: Record<strin
     },
     queue,
     cms,
+    settings,
+    // No network in unit tests: no search providers, so `find` fails fast with not_found.
+    imageSourcing: createImageSourcing({
+      env: { ...config.rawProviderEnv, IMAGES_FROM_WEB_SEARCH: String(config.IMAGES_FROM_WEB_SEARCH) },
+      settings,
+      providers: [],
+    }),
+    llm: opts.llm
+      ? createTestLlmService(opts.llm)
+      : createTestLlmService({ id: "none", generate: () => { throw new Error("no LLM in this test"); } }, { unavailable: "no LLM provider is enabled (test engine): set LLM_<PROVIDER>=\"true|<key>\"." }),
+    ...(opts.runEnvironments ? { runEnvironments: opts.runEnvironments } : {}),
     selfContainer: "forja-engine-test",
     readyIntervalMs: 1,
   };

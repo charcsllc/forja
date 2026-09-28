@@ -12,14 +12,14 @@ tabla siguiente se genera desde ahí con `npm run agents:docs`; no se edita a ma
 
 | Rol | Misión | Alcance de escritura (globs) | Herramientas (además de `read_file`, `grep`, `glob`) | Requisitos de modelo | Salida final |
 |---|---|---|---|---|---|
-| `director` | Dirección técnica; entiende, decide, planifica, resuelve conflictos, habla con el usuario | ninguno | `git_log`, `git_diff`, `submit_intent`, `submit_plan`, `submit_decision`, `submit_message` | JSON schema, contexto ≥200K, tier frontier | `submit_plan` / `submit_message` |
+| `director` | Dirección técnica; entiende, decide, planifica, resuelve conflictos, habla con el usuario | ninguno | `list_dir`, `git_log`, `git_diff`, `submit_intent`, `submit_plan`, `submit_decision`, `submit_message` | herramientas nativas, contexto ≥128K, tier frontier | `submit_plan` / `submit_message` |
 | `designer` | Sistema de diseño de cada web; revisión visual | `docs/design/**`, `src/app/globals.css`, `src/components/ui/**`, `src/app/fonts/**` | `write_file`, `edit_file`, `contrast_check`, `font_vendor`, `browser_screenshot`, `submit_report` | visión, tier frontier | `submit_report` (+ `submit_design_review` en verificación) |
 | `brand` | Logo, favicon, iconos, OG, guía de identidad | `public/brand/**`, `public/favicon.ico`, `src/app/icon.svg`, `src/app/apple-icon.png`, `src/app/opengraph-image.tsx`, `docs/brand/**` | `write_file`, `edit_file`, `image_generate`, `image_optimize`, `svg_validate`, `svg_text_to_path`, `submit_report` | visión | `submit_report` |
-| `imagery` | Buscar o generar imágenes, optimizar, registrar licencia | `public/media/**` | `write_file`, `image_search`, `image_generate`, `image_optimize`, `submit_report` | visión (si genera y compara) | `submit_report` |
+| `imagery` | Buscar o generar imágenes, optimizar, registrar licencia | `public/images/**` | `write_file`, `image_find`, `image_optimize`, `submit_report` | visión (si genera y compara) | `submit_report` |
 | `copywriter` | Textos, SEO, metadatos, i18n, `alt` | `src/content/**`, `messages/**`, `docs/content/**`, `public/media/alt.json` | `write_file`, `edit_file`, `seo_audit`, `submit_report` | — | `submit_report` |
 | `database` | Esquema, migraciones, seed, consultas | `src/db/**`, `drizzle/**`, `tests/db/**`, `docs/adr/*-data-model.md` | `write_file`, `edit_file`, `bash`, `db_query`, `db_introspect`, `submit_report` | tier strong+ | `submit_report` |
 | `backend` | Casos de uso, APIs, auth, integraciones | `src/modules/<feature>/{domain,application,infrastructure}/**`, `src/app/api/**`, `tests/modules/<feature>/**` (según tarea) | `write_file`, `edit_file`, `bash`, `http_probe`, `submit_report` | tier strong+ | `submit_report` (con `envNeeds[]`) |
-| `frontend` | Páginas, componentes, responsive, a11y | `src/app/**` (salvo `api`, `globals.css`, iconos), `src/components/layout/**`, `src/modules/<feature>/ui/**`, `tests/components/**`, `src/proxy.ts` | `write_file`, `edit_file`, `bash`, `browser_screenshot`, `browser_axe`, `submit_report` | tier strong+ | `submit_report` |
+| `frontend` | Páginas, componentes, responsive, a11y | `src/app/**` (salvo `api`, `globals.css`, iconos), `src/components/layout/**`, `src/modules/<feature>/ui/**`, `tests/components/**`, `src/proxy.ts` | `write_file`, `edit_file`, `bash`, `image_find`, `browser_screenshot`, `browser_axe`, `submit_report` | tier strong+ | `submit_report` |
 | `supervisor` | Integración y entorno: merge, `Dockerfile`, compose, env, scripts, CI | raíz (`Dockerfile`, `compose*.yaml`, `.dockerignore`, `.env.example`, `package.json`, lockfile), `scripts/**`, `.github/**`, `src/env.ts` | `write_file`, `edit_file`, `bash`, `git_merge`, `compose_validate`, `request_rework`, `submit_report` | tier strong+ | `submit_report` (con `secretKeysNeeded`) |
 | `qa` | Escribe e2e; triaje de fallos de las puertas | `e2e/**`, `tests/**` (solo añadir) | `write_file`, `edit_file`, `bash` (solo `playwright`, `vitest`), `browser_*`, `http_probe`, `submit_triage` | — | `submit_triage` |
 | `reviewer` | Revisión contra spec y arquitectura, otra familia de modelo | ninguno | `git_diff`, `git_log`, `submit_review` | tier frontier, familia ≠ implementador | `submit_review` |
@@ -267,3 +267,64 @@ Un run con puertas rojas tras agotar los reintentos termina en `done` con mensaj
 | Cambios fuera de alcance | Lease en la herramienta; `scope.violation` |
 | Secretos en el código | Redacción de valores conocidos en toda salida de herramienta; grep de patrones antes de cada commit; `security` |
 | Contenido que "instruye" al agente | Resultados de herramientas etiquetados como datos; prompts lo dicen; hallazgo `info` en `security` |
+
+## 11. Estado fase 2 (2026-09-28, sin commit)
+
+Implementado y probado con proveedores guionizados (sin ninguna llamada real a un LLM):
+
+- **Roles**: `director`, `frontend`, `backend`, `database`, `fixer`, `summarizer` en
+  `packages/agents/src/roles/*.ts`; `ROLE_REQUIREMENTS` es lo que el engine pasa a
+  `createLlmGateway`. Todos exigen herramientas nativas (las salidas estructuradas son
+  `submit_*` validadas con zod, así que el director no necesita modo JSON schema); director
+  tier frontier y ≥128K, implementadores strong y ≥64K, fixer fast y ≥32K, summarizer fast y
+  ≥128K. Con solo `LLM_NVIDIA` todos quedan en `nvidia:z-ai/glm-5.3` (131K, test del engine).
+- **Runtime** (`packages/agents/src/runtime/loop.ts`): bucle uniforme sobre `Provider`,
+  validación zod de argumentos antes de ejecutar, errores devueltos al modelo, un
+  recordatorio si responde con texto y `no-submit` a la segunda, turno extra tras un corte
+  por `length`, abort por `AbortSignal`, timeout por turno de 20 min (la primera respuesta
+  del nivel gratuito de NVIDIA tardó 131 s), compactación con el `summarizer` al superar
+  `AGENT_CONTEXT_SOFT_LIMIT` del contexto del modelo según el catálogo (primer mensaje y
+  último turno del asistente intactos). Protocolo XML implementado; solo se activa con
+  `AGENT_<ROL>_TOOL_PROTOCOL=xml` o un modelo sin herramientas nativas.
+- **Prompts**: empaquetados en build en `packages/agents/src/prompts/bundle.generated.ts`
+  (`npm run prompts:bundle -w @forja/agents`; un test falla si está desactualizado). El
+  prompt de sistema es estable por rol; la cabecera de contexto (§4 paso 2) viaja como
+  primer mensaje `user`. La imagen del engine no necesita `docs/`.
+- **Orquestador** (`apps/engine/src/services/runs/`): job pg-boss `run.execute` (caduca a
+  las 8 h, concurrencia `ENGINE_MAX_CONCURRENT_RUNS`). Estados usados: `received`,
+  `directing`, `answering`, `modelling`, `implementing`, `verifying`, `fixing`,
+  `finishing`, `cancelling` y los terminales; `designing`, `integrating`, `reviewing` y
+  `documenting` llegan con los roles de la fase 3.
+- **Reglas del plan en esta fase** (además de `validatePlan`): solo roles `frontend`,
+  `backend`, `database`; como máximo 10 tareas; `scope.write` no vacío.
+- **Puerta local** tras cada tarea: `typecheck` y `lint` filtrados a los ficheros de su
+  alcance; `AGENT_TASK_LOCAL_RETRIES` rondas del dueño en la misma conversación.
+- **Puertas 1–6** (`gates.ts`, comandos de la plantilla). Diferencia: la puerta 6 arranca
+  el servidor `standalone` que construyó la 5 contra la base de verificación y exige
+  `GET /api/health` 200; el `docker build` del `Dockerfile` del proyecto necesita un puerto
+  de construcción de imágenes en `@forja/sandbox` (fase 3). `tweak` = puertas 1, 2 y 5.
+  Enrutado: 1–2 → `fixer` (alcance = ficheros con error + sus imports directos); 3 → la
+  tarea `database`; 4–6 → la tarea cuyo alcance cubre el fichero con error (o la última).
+  Paradas: `AGENT_MAX_FIX_ROUNDS`, el mismo error más de `AGENT_FIXER_PASSES` veces para el
+  fixer o dos veces seguidas para un dueño, presupuesto al 90 %.
+- **Cierre**: commit, `merge --no-ff` + tag, fila en `versions` (`id` = sha del merge,
+  `checks` con las puertas), migraciones de `app` o rebuild si cambió configuración, y el
+  mensaje final del **director** (`submit_message`, sesión nueva con el resumen de informes
+  y puertas, paga la reserva del 10 %), con plantilla localizada si falla. El `summarizer`
+  solo compacta.
+- **Presupuesto**: reparto de §3; el orquestador carga el coste desde los eventos `usage`
+  (misma fuente que `llm_calls`); el `charge` que recibe el gateway es un no-op para no
+  contar dos veces.
+- **Stop**: `AbortController` en proceso y, entre procesos, el heartbeat (20 s) lee
+  `cancel_requested_at` (en lugar de `LISTEN/NOTIFY`). El trabajo parcial queda en un
+  commit `wip:` en `run/<runId>`, que se conserva. Borrar el proyecto detiene antes su run.
+  Una puerta en curso no retrasa el stop: su comando muere con el contenedor de verificación.
+- **Caídas**: una lectura de `agent/status` cierra como `failed` ("interrumpido") un run
+  sin worker local y con heartbeat de más de 3 min; al arrancar, los `received` se vuelven a
+  encolar y el resto se cierra.
+
+Pendiente (fase 3): reanudación desde checkpoints (`tasks.checkpoint`, `lease_until`,
+jobs por fase ≤10 min), `LISTEN/NOTIFY`, eventos `file.diff` con blobs, el generador
+`npm run agents:docs` de la tabla de §1, `agents:eval --executor real`, SSE y los nueve
+roles restantes.
+

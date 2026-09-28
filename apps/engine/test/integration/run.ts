@@ -244,7 +244,9 @@ async function main(): Promise<number> {
     const tr3 = await viaTraefik(host, "/");
     check(tr3.status === 200, `after wake Traefik → ${tr3.status}`);
 
-    // ── Launch (phase 1 semantics) ──
+    // ── Launch ── Without LLM_* the run cannot start (NO_PROVIDER_ENABLED, the workspace's
+    // agent/start fails as expected). With a provider configured the run is created but it
+    // waits for the sandbox, and the DELETE below stops it before any model is called.
     const launch = await simulateLaunch(client, { projectId: `${id}-l`, prompt: "A one-page site for a bakery." }, { waitForRun: false });
     sims.push(launch);
     // Delete it right away: its provisioning would install a second node_modules (~1 GB).
@@ -280,7 +282,7 @@ async function main(): Promise<number> {
   console.log(formatResultsTable(sims));
   for (const r of sims) for (const v of r.violations) console.log(`  ${r.simulator}: ${v.code} — ${v.message}`);
   const expected = (r: SimulationResult) =>
-    r.ok || (r.simulator === "launch" && r.violations.every((v) => v.code === "REQUEST_FAILED" && v.message.includes("NOT_IMPLEMENTED")));
+    r.ok || (r.simulator === "launch" && r.violations.every((v) => v.code === "REQUEST_FAILED" && v.message.includes("NO_PROVIDER_ENABLED")));
   const simFailures = sims.filter((r) => !expected(r));
   console.log(`\n${failures.length} check failure(s), ${simFailures.length} unexpected simulator failure(s)`);
   for (const f of failures) console.log(`  ✗ ${f}`);

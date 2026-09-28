@@ -15,6 +15,13 @@ export const en = {
   "run.internalError": "Something went wrong on our side: {cause}. Your project is safe; you can try again.",
   "run.noProvider":
     "No AI provider is configured, so nothing could be built. Ask the administrator to enable one and try again.",
+  "run.rolesUnsatisfiable":
+    "The AI team is not fully configured, so nothing was started. The administrator must fix this in the engine settings: {details}",
+  "run.interrupted": "The work was interrupted because the builder restarted. Your project is safe; send your request again.",
+  "run.finished": "Done: {summary}",
+  "run.finishedWithFailures": "The new version is saved, but some checks did not pass: {failed}. You can ask me to fix them.",
+  "run.nothingChanged": "I finished without changing any file. {summary}",
+  "run.questionFallback": "I could not put together an answer this time. Please ask again.",
 
   // Phase changes (one per run status).
   "phase.received": "Request received",
@@ -57,6 +64,12 @@ export const en = {
 
   // Verification.
   "gates.progress": "Running check {done} of {total}",
+  "gate.typecheck": "type checking",
+  "gate.lint": "code style",
+  "gate.database": "database migrations and sample data",
+  "gate.tests": "automated tests",
+  "gate.build": "production build",
+  "gate.start": "production start-up",
 } as const;
 
 export type MessageCatalog = typeof en;

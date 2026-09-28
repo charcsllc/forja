@@ -32,9 +32,9 @@ Prefijo `/v1`, montado por `apps/web` bajo `/api/vcaas/*`. Cumple `docs/research
 |---|---|
 | Envelope y códigos | Como Totalum (`{errors, data}`, mismos `errorCode`). Presupuesto agotado → `INSUFFICIENT_CREDITS` 402. Nuevos: `NO_PROVIDER_ENABLED` 503, `STALE_WRITE` 409, `ROLLBACK_NEEDS_DB` 409 (v2). |
 | Autenticación | `api-key: ${FORJA_ENGINE_KEY}` en todo salvo la **superficie pública firmada** (§2.3). La clave la genera el servicio `init` de `infra/compose.yaml` en `/data/engine/engine.key` (bind mount de `DATA_DIR_HOST`) y copia **solo** `engine.key` al volumen `forja-data`, que `web` monta de solo lectura (`infra/web-entrypoint.sh` la exporta); `web` nunca ve `master.key` ni el `.env` de infra. En servidor ambas claves se definen en env. |
-| `launch` | Crea proyecto + sandbox + run; `warnings[]` por paso; `agent.started`; auto-sufijo y `requestedProjectId`. |
-| `agent/start` | Persiste el mensaje `user` (con `files`) y crea el run con `process_status="init"` **antes** de responder. `model`/`effort`/`fastMode` como pistas. |
-| `agent/status` | `startedAt` = `runs.started_at`; `expectedMinutes` = mediana histórica por intención (por defecto 8 para `full`, 2 para `tweak`). |
+| `launch` | Crea proyecto + sandbox + run; `warnings[]` por paso; `agent.started`; auto-sufijo y `requestedProjectId`. El run se crea antes de responder y espera a que la provisión deje el sandbox `Active`; si no puede empezar (p. ej. `NO_PROVIDER_ENABLED`), `agent.started:false` con `warnings[{step:"agent", code, message}]` y la UI envía el prompt guardado con `agent/start`. |
+| `agent/start` | Persiste el mensaje `user` (con `files`) y crea el run con `process_status="init"` **antes** de responder; respuesta `{started:true, status:"init", runId, warnings}`. Pistas: `effort` se aplica a todos los roles del run; `model` y `fastMode` se ignoran con `warnings[{code:"HINT_IGNORED"}]` (los modelos son por rol, `AGENT_<ROL>_MODEL`). Proyecto dormido → despierta + 409 `SERVER_NOT_READY`; en creación → se acepta y el run espera. Otro run activo → `AGENT_RUNNING` 409; operación pesada en curso → `OPERATION_IN_PROGRESS` 409; presupuesto mensual agotado → `INSUFFICIENT_CREDITS` 402; roles sin modelo → `NO_PROVIDER_ENABLED` 503 con el mensaje localizado `run.rolesUnsatisfiable`, que nombra qué configurar. Durante un run, `files/content PUT`, `rebuild` y `recover` → `AGENT_RUNNING`. |
+| `agent/status` | Del último run: `status` = proyección de `03 §2`; `startedAt` = `runs.started_at`; `realtimeConversation` = mensajes del run; `creditsSpent` = `runs.spent_usd`; `expectedMinutes` = mediana de las 20 últimas duraciones de la intención (por defecto `full` 8, `feature`/`refactor` 6, `infra` 5, `bugfix` 4, `tweak` 2, `question` 1; antes de clasificar: `full` en el primer prompt, `feature` después) y `expectedFinishAt`, solo mientras `init`. Un run sin worker y con heartbeat de más de 3 min se cierra aquí como `failed` con el mensaje `run.interrupted`. `agent/stop` → `{runId, status:"cancelling"}` (`cancelled` si aún estaba en cola); sin run → `NO_PROCESS_RUNNING` 409. |
 | Proyecto | Todos los campos de `research/02 §4` + `internalDevelopmentUrl` (solo lo usa el servidor de la UI). `plan="self-hosted"`. |
 | Ficheros | `files/tree` excluye `node_modules`, `.next`, `.git`, `dist`, `.forja`, `.totalum`, **`.env*`**. `files/content GET/PUT` sin sanitizar, `bytesWritten` exacto; `.env*` → `FORBIDDEN_PATH` 403; `PUT` durante run → `AGENT_RUNNING`; `baseCommitSha` opcional → `STALE_WRITE`. `source-code` → zip por `git archive` con URL firmada. `files/upload` multipart → `{url, fileNameId}` (URL pública firmada, §2.3). |
 | Rebuild / deploy / dominio / versiones | `04 §5–7`. `gitDiffUrl` no se emite. |
@@ -89,6 +89,16 @@ idioma = `projects.language`), **sin ids de tarea ni nombres de rol**.
 | `cancelled` | `agent` | `error` | "Detenido por el usuario…" |
 | publish éxito | (local en la UI) | — | la UI lo inyecta ella misma |
 
+Emisión real en la fase 2 (`apps/engine/src/services/runs/`): `starting` al empezar;
+`building` en cada cambio de fase (`phase.<estado>`), al empezar cada tarea y cada ronda de
+arreglo (`task.<rol>`, sin título ni ids) y, en la primera ronda de verificación, uno por
+puerta (`gates.progress`). El mensaje final se escribe **antes** del estado terminal. Con
+puertas rojas, el director las enumera; si su mensaje falla se usa `run.finishedWithFailures`
+con los nombres localizados de las puertas (`gate.*`). `versionId` = sha del commit de merge
+(= `versions.id` = `_id` de `GET versions`). `secretKeysNeeded` = los `envNeeds` con
+`required:true` de los informes, con `isProvided` calculado contra `secrets` (el supervisor
+los aportará en la fase 3). Sin cambios de ficheros no hay versión (`run.nothingChanged`).
+
 ## 3. API v2
 
 Prefijo `/v2`, misma clave, JSON plano. Además de lo listado antes: `POST
@@ -96,6 +106,30 @@ Prefijo `/v2`, misma clave, JSON plano. Además de lo listado antes: `POST
 (proxy interno para la UI, con `?target=verify`), `GET /v2/auth/preview` (público),
 `GET /v2/projects/:id/budget` (página de presupuestos que la UI renderiza en
 `/project/:id/budget` para el modal de créditos).
+
+**Modelos** (contrato C3): `GET /v2/system/models` →
+`{ providers: [{id, kind: "llm"|"image"|"stock", envName, status, adapterReady, models?}],
+assignments: RoleAssignment[] }` (proveedores LLM del gateway con sus modelos; `IMAGE_*` y
+`STOCK_*` desde el env, `adapterReady` solo para los `STOCK_*` que `packages/media` usa).
+Nunca incluye una clave. Con una configuración LLM inválida o incompleta el engine sigue
+arrancando y `assignments` muestra `model:null` con el `error` de cada rol.
+
+**Ajustes de la instancia** (contrato C4, `@forja/contracts/media`), con la misma `api-key`:
+
+| Método y ruta | Cuerpo | Respuesta |
+|---|---|---|
+| `GET /v2/system/settings` | — | `{ images: { mode, source, envDefault, generationAvailable } }` |
+| `PUT /v2/system/settings` | `{ images: { mode: "web-search" \| "generate" } }` (estricto; otro campo → 400 `VALIDATION`) | igual que `GET` |
+| `DELETE /v2/system/settings/images` | — | igual que `GET` (idempotente) |
+
+`mode` es la estrategia vigente; `source` dice si viene de la UI (`ui`) o de
+`IMAGES_FROM_WEB_SEARCH` (`env`); `envDefault` es lo que da el `.env` (para ofrecer "Reset to
+.env"); `generationAvailable` es falso si ningún generador `IMAGE_*` puede ejecutarse (entonces
+se busca en la web igualmente, `02 §7`). El override se guarda en la tabla `settings` (clave
+`images.mode`); un valor guardado inválido se ignora. La UI los consume por
+`apps/web/src/app/api/engine/settings/route.ts` (y `…/engine/models/route.ts` para
+`GET /v2/system/models`), que añaden la clave del engine en el servidor y copian solo los
+campos documentados.
 
 **Streaming:** `GET /v2/runs/:id/events?after=<seq>` (SSE). La UI no lo pasa por el
 catch-all (que exige JSON): tiene una ruta dedicada `apps/web/src/app/api/runs/[id]/events/route.ts`
@@ -126,6 +160,16 @@ system.pressure{disk,memory}
 
 `tool.call` guarda un resumen de argumentos (nombre, ruta, tamaño); el contenido completo
 va a `blob_path` con retención. `file.diff` guarda el `stat` y el parche en blob.
+
+Fase 2 emite: `run.received`, `run.phase`, `run.finished`, `plan.created`,
+`plan.rejected`, `plan.approved`, `task.started`, `task.turn`, `task.finished`,
+`task.failed`, `task.retried`, `text`, `tool.call`, `tool.result`, `command.output`,
+`scope.violation`, `gate.started`, `gate.passed`, `gate.failed`, `cost.tick`,
+`budget.warning`, `budget.exhausted`, `context.compacted` y `message`. Un payload de más de
+8 KB se escribe en `DATA_DIR/projects/<id>/runs/<runId>/blobs/` y la fila guarda
+`blob_path`. `file.diff` (el diff queda en el commit de cada tarea) llega en la fase 3.
+Cada llamada al modelo deja una fila en `llm_calls` (también las fallidas, `outcome:
+"error"`); cada petición de `packages/media`, una en `media_calls`.
 
 ## 5. Webhooks
 

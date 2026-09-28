@@ -84,6 +84,26 @@ firewall, gVisor, `SANDBOX_EGRESS=registry-only`.
 - Verificación: un prompt sencillo produce una página nueva con puertas en verde; el coste
   aparece en `/project/:id/budget`.
 
+**Estado fase 2 · runtime de agentes y orquestador (2026-09-28, sin commit).**
+`packages/agents`: registro de herramientas (`11`, subconjunto de la fase), puertos
+(workspace, exec, db, git, imágenes), bucle uniforme sobre `Provider`, protocolos nativo y
+XML, compactación con el `summarizer`, ensamblador de prompts (base → rol → proveedor →
+familia vía `promptNotesFor`), cabeceras de contexto y los seis roles con
+`ROLE_REQUIREMENTS`. Los prompts se empaquetan en build (`bundle.generated.ts`), así que
+`docs/` sigue fuera de la imagen (resuelve de otra forma el pendiente de la fase 0).
+`apps/engine`: `services/llm.ts` (gateway, asignaciones al arrancar, motor en pie aunque
+falten modelos, modo replay opt-in con `FORJA_LLM_REPLAY_DIR`), `services/runs/` (arranque
+síncrono, orquestador, puertas 1–6, presupuesto, ledger, stop, recuperación), endpoints v1
+de agente y `GET /v2/system/models`; `media_calls` conectado. Detalle y diferencias con el
+diseño en `03 §11`, `05 §2.1/§2.4/§3/§4`, `11` "Estado fase 2". Verificado con proveedores
+guionizados: simulador `launch` y `agentStart` de `packages/contract-tests` en verde en
+proceso, recorrido completo con repositorio git real (plan → página → puertas → merge →
+tag → mensaje), fixer tras puerta roja, límite de presupuesto, stop con rama conservada,
+recuperación tras caída, `PgStore` contra Postgres 17 real; con `LLM_NVIDIA` solo, los seis
+roles quedan asignados a `nvidia:z-ai/glm-5.3` sin hacer ninguna petición. No verificado:
+un run con un modelo real, el contenedor `forja-verify` real (creación, `npm ci`, puertas
+sobre la plantilla), la puerta 6 sobre la plantilla, y la UI de extremo a extremo.
+
 ## Fase 3 · Equipo completo, puertas de navegador, SSE
 
 - Roles `designer`, `brand`, `imagery`, `copywriter`, `supervisor`, `qa`, `reviewer`,

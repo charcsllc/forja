@@ -5,7 +5,9 @@
 # Trade-off: `npm ci -w @forja/engine --include-workspace-root` installs only what the engine
 # and the root toolchain need, not the web app's ~1 GB of dependencies.
 # The build is an esbuild bundle (scripts/build.mjs): the workspace packages (@forja/contracts,
-# git, sandbox, db-cms) are compiled in; npm packages stay external in node_modules.
+# git, sandbox, db-cms, llm, agents, media) are compiled in; npm packages stay external in
+# node_modules. The agent prompts travel inside the bundle (packages/agents/src/prompts/
+# bundle.generated.ts, generated from docs/prompts), so the image needs no copy of docs/.
 # Templates are copied to /opt/forja/templates (TEMPLATE_DIR default), from the repo's
 # templates/ folder, so a project is created from exactly the template this image was built with.
 

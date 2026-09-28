@@ -14,6 +14,7 @@
     "./reports": { "types": "./src/reports.ts", "default": "./src/reports.ts" },
     "./messages": { "types": "./src/messages/index.ts", "default": "./src/messages/index.ts" },
     "./slug": { "types": "./src/slug.ts", "default": "./src/slug.ts" },
+    "./media": { "types": "./src/media.ts", "default": "./src/media.ts" },
     "./package.json": "./package.json"
   },
   "files": ["src", "dist"],

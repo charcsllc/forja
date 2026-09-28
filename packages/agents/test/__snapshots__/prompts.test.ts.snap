@@ -1,0 +1,109 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`assembleSystemPrompt > backend on nvidia/GLM: base → role → nvidia (if present) → zai 1`] = `
+{
+  "headings": [
+    "# Base persona (prepended to every role prompt)",
+    "# Role: Backend engineer (use cases, APIs, auth, integrations)",
+    "# Provider adapter: NVIDIA NIM (hosted open models)",
+    "# Provider adapter: Z.ai / Zhipu (GLM-5.x, GLM-4.x)",
+  ],
+  "parts": [
+    "_base-engineer.md",
+    "roles/backend.md",
+    "providers/nvidia.md",
+    "providers/zai.md",
+  ],
+  "role": "backend",
+}
+`;
+
+exports[`assembleSystemPrompt > database on nvidia/GLM: base → role → nvidia (if present) → zai 1`] = `
+{
+  "headings": [
+    "# Base persona (prepended to every role prompt)",
+    "# Role: Database engineer (data model, schema, migrations, queries)",
+    "# Provider adapter: NVIDIA NIM (hosted open models)",
+    "# Provider adapter: Z.ai / Zhipu (GLM-5.x, GLM-4.x)",
+  ],
+  "parts": [
+    "_base-engineer.md",
+    "roles/database.md",
+    "providers/nvidia.md",
+    "providers/zai.md",
+  ],
+  "role": "database",
+}
+`;
+
+exports[`assembleSystemPrompt > director on nvidia/GLM: base → role → nvidia (if present) → zai 1`] = `
+{
+  "headings": [
+    "# Base persona (prepended to every role prompt)",
+    "# Role: Director (technical lead and orchestrator)",
+    "# Provider adapter: NVIDIA NIM (hosted open models)",
+    "# Provider adapter: Z.ai / Zhipu (GLM-5.x, GLM-4.x)",
+  ],
+  "parts": [
+    "_base-engineer.md",
+    "roles/director.md",
+    "providers/nvidia.md",
+    "providers/zai.md",
+  ],
+  "role": "director",
+}
+`;
+
+exports[`assembleSystemPrompt > fixer on nvidia/GLM: base → role → nvidia (if present) → zai 1`] = `
+{
+  "headings": [
+    "# Base persona (prepended to every role prompt)",
+    "# Role: Fixer (mechanical fixes: types, lint, imports, formatting)",
+    "# Provider adapter: NVIDIA NIM (hosted open models)",
+    "# Provider adapter: Z.ai / Zhipu (GLM-5.x, GLM-4.x)",
+  ],
+  "parts": [
+    "_base-engineer.md",
+    "roles/fixer.md",
+    "providers/nvidia.md",
+    "providers/zai.md",
+  ],
+  "role": "fixer",
+}
+`;
+
+exports[`assembleSystemPrompt > frontend on nvidia/GLM: base → role → nvidia (if present) → zai 1`] = `
+{
+  "headings": [
+    "# Base persona (prepended to every role prompt)",
+    "# Role: Frontend engineer (pages, components, interaction, accessibility)",
+    "# Provider adapter: NVIDIA NIM (hosted open models)",
+    "# Provider adapter: Z.ai / Zhipu (GLM-5.x, GLM-4.x)",
+  ],
+  "parts": [
+    "_base-engineer.md",
+    "roles/frontend.md",
+    "providers/nvidia.md",
+    "providers/zai.md",
+  ],
+  "role": "frontend",
+}
+`;
+
+exports[`assembleSystemPrompt > summarizer on nvidia/GLM: base → role → nvidia (if present) → zai 1`] = `
+{
+  "headings": [
+    "# Base persona (prepended to every role prompt)",
+    "# Role: Summarizer (context compaction and handoff summaries)",
+    "# Provider adapter: NVIDIA NIM (hosted open models)",
+    "# Provider adapter: Z.ai / Zhipu (GLM-5.x, GLM-4.x)",
+  ],
+  "parts": [
+    "_base-engineer.md",
+    "roles/summarizer.md",
+    "providers/nvidia.md",
+    "providers/zai.md",
+  ],
+  "role": "summarizer",
+}
+`;

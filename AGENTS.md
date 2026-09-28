@@ -174,6 +174,8 @@ src/proxy.ts             CORS + CSP for every request
 | Route | Methods | Guards | `publicUrlRejectionReason` | Limits / notes |
 |---|---|---|---|---|
 | `/api/config` | GET | no | no | `{configured}` from key length; key never returned |
+| `/api/engine/settings` | GET PUT DELETE | no | no | Engine mode only. Forwards to `/v2/system/settings` with the engine key (server side); `DELETE ?reset=images` drops the UI override of `IMAGES_FROM_WEB_SEARCH` |
+| `/api/engine/models` | GET | no | no | Engine mode only. Forwards `/v2/system/models` (providers and role → model assignments, never a key) |
 | `/api/vcaas/[...path]` | GET POST PUT DELETE PATCH | no | no | No timeout, size or rate limit. Non-JSON upstream body → 500 `UNKNOWN`. Drops upstream headers, so `meta` (X-Total-Count) is never filled |
 | `/api/vcaas/upload/[projectId]` | POST | no | no | **No size check here**; the API is the authority. 413 → `FILE_TOO_LARGE`; `retryable` = 5xx or 429; `code` is the raw upstream code |
 | `/api/vcaas/source-code/[projectId]` | GET | no | no (URL comes from upstream) | Fetches the signed archive with `redirect:"error"` and a 60 s timeout, buffers the whole zip; ignores the `?intent=` the client sends |
@@ -266,6 +268,7 @@ or response is not plain JSON.
 | Diff viewer | `DiffViewer.tsx`, `lib/diff-parse.ts` | Tries the stored patch via `/api/vcaas/git-diff` first, then `versions.diff(commitSha)`. Has its own `useServerWake`. |
 | Insufficient credits | `InsufficientCreditsModal.tsx` (mounted in `layout.tsx`) | Listens for `totalum:insufficient-credits`; links to the operator's billing page (`BRAND.billingUrl`). Change that link before selling to customers. |
 | Setup | `SetupBanners.tsx`, `/api/config` | Shown on the home page when no key is configured. |
+| Settings (engine mode) | `components/settings/{SettingsButton,SettingsModal}.tsx`, `lib/engine-settings.ts` | Gear in the home and workspace headers, hidden in Totalum mode. "Search images on the web" switch (overrides `IMAGES_FROM_WEB_SEARCH` until "Reset to .env") and the read-only model list. |
 
 ## 8. Workspace state model
 

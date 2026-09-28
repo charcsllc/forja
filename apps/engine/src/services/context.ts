@@ -17,17 +17,23 @@ import type {
   LogsOptions,
   ProvisionOptions,
   ProvisionResult,
+  VerifyOptions,
+  VerifyResult,
   WaitHttpOptions,
   WaitHttpResult,
 } from "@forja/sandbox";
 import type { Readable } from "node:stream";
 import type { FileContent, FileTree } from "@forja/contracts/v1";
-import type { DiffResult, InitResult, LogResult, RestoreResult, WriteFileOptions, WriteFileResult } from "@forja/git";
+import type { DiffResult, InitResult, LogResult, MergeResult, RestoreResult, RunCheckout, WriteFileOptions, WriteFileResult } from "@forja/git";
 import type { Config } from "../config.js";
 import type { Logger } from "../logger.js";
 import type { Store } from "../store/types.js";
 import type { SecretsService } from "./secrets.js";
 import type { CmsPort } from "./cms.js";
+import type { ImageSourcingPort } from "@forja/contracts/media";
+import type { SettingsService } from "./settings.js";
+import type { LlmService } from "./llm.js";
+import type { RunEnvironmentFactory } from "./runs/environment.js";
 
 /** The slice of `SandboxManager` the engine uses. */
 export interface SandboxPort {
@@ -41,6 +47,9 @@ export interface SandboxPort {
   logs(container: string, options?: LogsOptions): Promise<string>;
   waitHttpReady(container: string, path?: string, timeoutSec?: number, options?: WaitHttpOptions): Promise<WaitHttpResult>;
   hostPathCheck(): Promise<HostPathCheckResult>;
+  /** Phase 2: the run's `verify_<runId>` database and `forja-verify-<id>` on `run/` (04 §1, §9). */
+  createVerify(projectId: string, runId: string, options: VerifyOptions): Promise<VerifyResult>;
+  destroyVerify(projectId: string, runId: string): Promise<void>;
   readonly docker: Pick<
     DockerApi,
     "inspectNetwork" | "createNetwork" | "connectNetwork" | "disconnectNetwork" | "inspectContainer" | "exec"
@@ -67,6 +76,18 @@ export interface RepoPort {
   lockfileChanged(from: string, to: string): Promise<boolean>;
   /** Paths that differ between two commits (`git diff --name-only`). */
   changedFiles(from: string, to: string): Promise<string[]>;
+
+  // ── Runs (phase 2, 04 §1, §6): branch `run/<runId>` checked out at `run/` ──
+  ensureRunCheckout(runId: string): Promise<RunCheckout>;
+  removeRunCheckout(runId: string, opts?: { deleteBranch?: boolean }): Promise<void>;
+  /** Commits everything in `run/`; null when there was nothing to commit. */
+  commitRun(message: string): Promise<string | null>;
+  /** `git merge --no-ff run/<runId>` into main + tag `v<N>`. */
+  mergeRun(runId: string, opts?: { message?: string }): Promise<MergeResult>;
+  /** Unified diff of `run/` (working tree) against `from`, optionally one path; `to` compares two refs. */
+  runDiff(opts: { from: string; to?: string; path?: string }): Promise<string>;
+  /** `git log --oneline`-style history of main (newest first). */
+  logText(opts: { limit: number; path?: string }): Promise<string>;
 }
 
 export const JOB_NAMES = [
@@ -77,6 +98,7 @@ export const JOB_NAMES = [
   "sandbox.archive",
   "sandbox.remove",
   "version.restore",
+  "run.execute",
 ] as const;
 export type JobName = (typeof JOB_NAMES)[number];
 
@@ -109,6 +131,7 @@ export type EngineConfig = Pick<
   | "BUDGET_PER_RUN_USD"
   | "BUDGET_PER_PROJECT_MONTH_USD"
   | "BUDGET_GLOBAL_MONTH_USD"
+  | "ENGINE_MAX_CONCURRENT_RUNS"
 >;
 
 export interface EngineContext {
@@ -121,6 +144,14 @@ export interface EngineContext {
   repo(projectId: string): RepoPort;
   queue: QueuePort;
   cms: CmsPort;
+  /** Instance settings the UI can change (`/v2/system/settings`). */
+  settings: SettingsService;
+  /** Image sourcing for the `image_find` tool (`@forja/media`; strategy from `settings` + env). */
+  imageSourcing: ImageSourcingPort;
+  /** The LLM gateway and agent settings (phase 2, `services/llm.ts`). */
+  llm: LlmService;
+  /** Per-run infrastructure (run checkout, verify container); tests inject a fake. */
+  runEnvironments?: RunEnvironmentFactory;
   /** The engine's own container (name or id) to attach to project networks; null = not in Docker. */
   selfContainer: string | null;
   /** Readiness probe for app containers (networkProbe over forja-apps in production). */

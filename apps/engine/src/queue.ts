@@ -76,6 +76,6 @@ export async function registerJob<T extends object = object>(
  * `singletonKey` makes a re-send of the same job (same operation token) a no-op while the
  * first one is queued or active, so boot-time resumption can never run a job twice.
  */
-export async function sendJob(name: string, data: object, singletonKey?: string): Promise<void> {
-  await getQueue().send(name, data, { retryLimit: 0, expireInSeconds: 1800, ...(singletonKey ? { singletonKey } : {}) });
+export async function sendJob(name: string, data: object, singletonKey?: string, expireInSeconds = 1800): Promise<void> {
+  await getQueue().send(name, data, { retryLimit: 0, expireInSeconds, ...(singletonKey ? { singletonKey } : {}) });
 }

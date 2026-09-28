@@ -81,8 +81,8 @@ describe("POST /v1/projects", () => {
   });
 });
 
-describe("POST /v1/projects/launch (phase 1)", () => {
-  it("creates + provisions and reports the agent as not started with an `agent` warning", async () => {
+describe("POST /v1/projects/launch", () => {
+  it("without an LLM provider: creates + provisions and reports the agent as not started with the reason", async () => {
     const e = makeTestEngine();
     await e.json("POST", "/v1/projects", { projectId: "bakery", description: "" });
     const res = await e.json("POST", "/v1/projects/launch", { projectId: "bakery", prompt: "A bakery site", description: "A bakery site" });
@@ -92,7 +92,7 @@ describe("POST /v1/projects/launch (phase 1)", () => {
       requestedProjectId: "bakery",
       agent: { started: false },
     });
-    expect(res.body.data.warnings).toContainEqual(expect.objectContaining({ step: "agent", code: "NOT_IMPLEMENTED" }));
+    expect(res.body.data.warnings).toContainEqual(expect.objectContaining({ step: "agent", code: "NO_PROVIDER_ENABLED", message: expect.stringContaining("LLM_") }));
     const got = await e.json("GET", "/v1/projects/bakery-2");
     expect(got.status).toBe(200);
   });
@@ -167,8 +167,8 @@ describe("PATCH / DELETE / undelete", () => {
   });
 });
 
-describe("agent (phase 1 stand-ins) and stubs", () => {
-  it("answers idle/empty status and conversation; start is 501; stop is NO_PROCESS_RUNNING", async () => {
+describe("agent without a provider, and stubs", () => {
+  it("answers idle/empty status and conversation; start explains the missing provider; stop is NO_PROCESS_RUNNING", async () => {
     const e = makeTestEngine();
     await activeProject(e, "agent-less");
     const st = await e.json("GET", "/v1/projects/agent-less/agent/status");
@@ -176,8 +176,11 @@ describe("agent (phase 1 stand-ins) and stubs", () => {
     const conv = await e.json("GET", "/v1/projects/agent-less/agent/full-conversation");
     expect(conv.body.data.conversation).toEqual([]);
     const start = await e.json("POST", "/v1/projects/agent-less/agent/start", { prompt: "x", inputFiles: [] });
-    expect(start.status).toBe(501);
-    expect(start.body.errors.errorCode).toBe("NOT_IMPLEMENTED");
+    expect(start.status).toBe(503);
+    expect(start.body.errors.errorCode).toBe("NO_PROVIDER_ENABLED");
+    expect(start.body.errors.errorMessage).toMatch(/not fully configured[\s\S]*LLM_<PROVIDER>/);
+    // Nothing was persisted for a refused start.
+    expect((await e.json("GET", "/v1/projects/agent-less/agent/full-conversation")).body.data.conversation).toEqual([]);
     const stop = await e.json("POST", "/v1/projects/agent-less/agent/stop", {});
     expect(stop.status).toBe(409);
     expect(stop.body.errors.errorCode).toBe("NO_PROCESS_RUNNING");
@@ -242,7 +245,7 @@ describe("GET /v2/projects/:id/budget", () => {
   it("reports runs of this month", async () => {
     const e = makeTestEngine();
     await activeProject(e, "spender");
-    e.store.runs.push({ projectId: "spender", id: "r1", startedAt: new Date(), createdAt: new Date(), status: "done", spentUsd: 1.25, budgetUsd: null });
+    await e.store.insertRun({ projectId: "spender", id: "r1", prompt: "p", startedAt: new Date(), status: "done", spentUsd: "1.25" });
     const body = (await (await e.call("GET", "/v2/projects/spender/budget")).json()) as { runs: unknown[]; project: unknown };
     expect(body.project).toEqual({ monthSpentUsd: 1.25, monthBudgetUsd: 60 });
     expect(body.runs).toEqual([{ id: "r1", startedAt: expect.any(String), status: "done", spentUsd: 1.25, budgetUsd: 8 }]);

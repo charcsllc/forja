@@ -12,6 +12,7 @@
 | Previews | Acceso público no deseado | `forward-auth` con token en URL → cookie de primera parte; `PREVIEW_PUBLIC=true` solo en local. **Las apps publicadas son públicas por definición** y no llevan este control |
 | Prompts y ficheros del usuario | Salida a proveedores no autorizados | Solo proveedores con `LLM_*=true`; evento `privacy.egress` por destino nuevo |
 | SSRF | URLs pegadas por el usuario o construidas por agentes | Guardia SSRF en toda descarga (sin IPs privadas, sin metadatos, `redirect: error`, timeouts); `visual-edit/apply` solo salta la guardia para su propio origen `/api/files/` |
+| Imágenes de la web (`image_find`) | URLs de ficheros que devuelve una API de búsqueda (dato no controlado); licencias que no permiten el uso | `packages/media`: solo https; guardia SSRF propia (portada de `apps/web/src/lib/safe-url.ts`) con resolución DNS en **cada salto**; redirecciones manuales re-comprobadas (máx. 3); timeout 30 s; ≤ 8 MB cortando el stream; tipo por bytes mágicos (JPEG/PNG/WebP/AVIF/GIF, **nunca SVG**); sin cookies ni credenciales. Licencias: solo CC0, dominio público/PDM, CC BY, CC BY-SA (nunca NC/ND ni `NonFree`) o la licencia del proveedor de stock; atribución registrada siempre en `public/images/credits.json`. Residual: DNS rebinding entre la resolución y el `fetch` |
 | Inyección de prompt | Contenido de paquetes o páginas que "instruye" | Resultados etiquetados como datos; prompts lo dicen; hallazgo `info` de `security` |
 | Dependencias | Paquetes maliciosos | `npm audit` en puerta (con Verdaccio audit habilitado en `registry-only`); `NPM_ALLOWLIST_FILE` opcional; distancia de nombres a paquetes populares |
 | Disco y recursos | Agotamiento del host | Límites por contenedor, `SANDBOX_MAX_ACTIVE`, `DISK_MIN_FREE_GB`, `PROJECT_MAX_SIZE_MB`, `UPLOAD_MAX_MB` |
@@ -32,6 +33,7 @@
 |---|---|---|
 | Proveedores LLM activados | Cada turno | Prompt de sistema, tarea, fragmentos de código, resultados de herramientas (redactados) |
 | Proveedores de imágenes activados | `imagery`/`brand` | Prompts de imagen, consultas |
+| Openverse (`api.openverse.org`) y Wikimedia Commons (`commons.wikimedia.org`) | `image_find` en modo búsqueda (siempre disponibles, sin clave) | Consulta en inglés y User-Agent de Forja; después, descarga del fichero elegido desde su host de origen (Flickr, `upload.wikimedia.org`, …) |
 | Registro npm (o Verdaccio) | `npm ci` | Nombres de paquetes |
 | Let's Encrypt y proveedor DNS | Solo con `*_TLS=true` | Hostnames, desafío DNS-01 |
 | GitHub / Figma | Solo si el usuario conecta | Código / diseños |

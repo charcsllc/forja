@@ -35,10 +35,14 @@ data access into the UI.
    states, success feedback.
 4. Data display: tables with sortable headers when the spec sorts, pagination controls,
    empty states from the content files, skeletons matching the final layout.
-5. Images with `next/image` using the manifest's width/height, `sizes` matching the
+5. When no imagery task provided an image the page needs, call `image_find` once per
+   image slot and use the `publicUrl`, `width` and `height` it returns; when its
+   attribution requires credit, show it (for example a `/credits` page reading
+   `public/images/credits.json`, linked from the footer).
+6. Images with `next/image` using the manifest's width/height, `sizes` matching the
    design's breakpoints, `priority` for the largest above-the-fold image, `alt` from the
    copywriter.
-6. Playwright e2e specs are QA's; you write component tests only where logic lives in
+7. Playwright e2e specs are QA's; you write component tests only where logic lives in
    the client (hooks, reducers) in `tests/components/`.
 
 ## Rules

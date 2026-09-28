@@ -5212,6 +5212,44 @@ export const en = {
     description: "The AI stopped because the spending limit for this run or this month was reached. Nothing you've built is lost. Raise the limit on the engine, or wait for next month, and try again.", // forja
     cta: "See the budget", // forja
   }, // forja
+  engineSettings: { // forja
+    open: "Settings", // forja
+    title: "Settings", // forja
+    description: "How this Forja Engine builds apps. Changes apply to every project on this instance.", // forja
+    loadFailed: "We couldn't load the settings", // forja
+    loadFailedDescription: "The engine didn't answer. Check that it is running and try again.", // forja
+    retry: "Retry", // forja
+    images: { // forja
+      title: "Images", // forja
+      switchLabel: "Search images on the web", // forja
+      switchHint: "Never use an image-generation model; find openly licensed photos online instead. Default from IMAGES_FROM_WEB_SEARCH in the engine .env.", // forja
+      sourceUi: "Set here", // forja
+      sourceEnv: "From .env: {value}", // forja
+      on: "on", // forja
+      off: "off", // forja
+      reset: "Reset to .env", // forja
+      noGenerator: "No image generator is enabled, so images are searched on the web anyway.", // forja
+      saveFailed: "We couldn't save the image setting", // forja
+    }, // forja
+    models: { // forja
+      title: "Models", // forja
+      description: "Read-only. Providers are switched on in the engine .env; each role gets a model automatically unless AGENT_<ROLE>_MODEL sets one.", // forja
+      unavailable: "Model list unavailable", // forja
+      providersTitle: "Enabled providers", // forja
+      noProviders: "No provider is enabled.", // forja
+      assignmentsTitle: "Role → model", // forja
+      noAssignments: "No roles to show yet.", // forja
+      noModel: "No model", // forja
+      sourceEnv: ".env", // forja
+      sourceAuto: "auto", // forja
+      adapterMissing: "no adapter yet", // forja
+      kindLlm: "Language", // forja
+      kindImage: "Image generation", // forja
+      kindStock: "Stock photos", // forja
+      statusEnabled: "enabled", // forja
+      statusMisconfigured: "misconfigured", // forja
+    }, // forja
+  }, // forja
 } as const;
 
 export default en;

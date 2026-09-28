@@ -35,6 +35,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { uploadFilesToProjectDetailed, splitBySize, MAX_UPLOAD_MB, TOO_LARGE_ADVICE } from "@/lib/upload";
 import { SetupBanners } from "@/components/SetupBanners";
+import { SettingsButton } from "@/components/settings/SettingsButton";
 import type { VcaasProjectSummary } from "@/lib/vcaas-types";
 
 type ViewMode = "cards" | "table";
@@ -596,6 +597,8 @@ export default function DashboardPage() {
           <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-8">
             <Logo />
             <nav className="flex items-center gap-1">
+              {/* forja: engine-only instance settings (images strategy, models). Hidden with Totalum. */}
+              <SettingsButton className="rounded-lg hover:bg-black/5" />
               <a href={BRAND.docsUrl} target="_blank" rel="noopener noreferrer" className="hidden h-8 items-center rounded-lg px-2.5 text-sm text-ink-2 transition-colors hover:bg-black/5 sm:inline-flex">Docs</a>
               <a href={BRAND.repoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-sm text-ink-2 transition-colors hover:bg-black/5">
                 <Github className="size-4" /> <span className="hidden sm:inline">GitHub</span>

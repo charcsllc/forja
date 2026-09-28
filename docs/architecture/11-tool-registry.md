@@ -47,14 +47,28 @@ llegar al modelo o a `run_events`.
 | `browser_screenshot` | `path` (ruta de la app), `width` (375/768/1440), `full_page?` | Contra `forja-verify-<id>`; devuelve ruta de la imagen y, para modelos con visión, la imagen |
 | `browser_axe` | `path` | Violaciones por severidad |
 | `browser_flow` | `spec` (pasos declarativos) | Solo qa; para reproducir bugs antes de escribir el e2e |
-| `image_search` | `query`, `orientation?`, `color?`, `count?` | Proveedores `STOCK_*` activos; devuelve candidatos con licencia y autor |
-| `image_generate` | `prompt`, `aspect`, `count?` (≤2), `style?` | Proveedores `IMAGE_*`; coste registrado en `media_calls`; presupuesto por slot |
+| `image_find` | `slot`, `query` (inglés), `alt` (idioma de la app), `orientation?`, `minWidth?` | Una imagen por slot vía `ImageSourcingPort` (`packages/media`, engine, no el sidecar). Escribe `public/images/<slot>.<ext>` y devuelve `{path, publicUrl, width, height, mediaType, alt, mode, attribution}`; mantiene `public/images/credits.json`. Búsqueda web o generación según `images.mode` (02 §7), nunca según el modelo |
 | `image_optimize` | `source`, `variants[]`, `focal?` | `sharp`; AVIF/WebP + fallback |
 | `svg_validate` | `path` | Bien formado, `viewBox`, sin scripts ni referencias externas, tamaño |
 | `svg_text_to_path` | `path`, `font` | Convierte `<text>` a `<path>` con las fuentes vendorizadas |
 | `font_vendor` | `family` | Copia una familia OFL de `/opt/forja/fonts` a `src/app/fonts/<family>/` y devuelve el snippet `next/font/local` |
 | `contrast_check` | `pairs[{fg,bg}]` | Ratios WCAG |
 | `seo_audit` | — | Longitudes, duplicados, campos ausentes en `src/content/seo.ts` |
+
+**`image_find` en detalle.** `slot` (`^[a-z0-9][a-z0-9-]{0,47}$`) es el nombre del fichero:
+volver a llamar con el mismo slot reemplaza la imagen y su crédito. El fichero real se mide
+(bytes mágicos y cabecera), así que `width`/`height` son los de la imagen escrita, listos
+para `next/image`. `attribution` = `{provider, title?, author?, authorUrl?, pageUrl?,
+license, licenseUrl?, attributionRequired}`. `public/images/credits.json` es un array
+`[{slot, path, alt, attribution}]` (`path` = URL pública, p. ej. `/images/hero.jpg`), una
+entrada por slot, ordenado por slot; las entradas sin `slot` escritas a mano se conservan.
+Si `attributionRequired` es true (CC BY, CC BY-SA, Unsplash), la app debe mostrar el
+crédito (p. ej. página `/credits` que lee ese fichero, enlazada desde el pie). Errores:
+`IMAGE_NOT_FOUND` (ningún proveedor dio una imagen utilizable; el agente usa un
+placeholder y lo anota) y cancelación del run. Cada petición a un proveedor se registra
+en `media_calls` (búsqueda: coste 0). El runtime pasa también `readFile` (el checkout
+`run/`) en el contexto del puerto para que `credits.json` se fusione con lo escrito en runs
+anteriores.
 
 ## Orquestación (engine)
 
@@ -76,3 +90,32 @@ llegar al modelo o a `run_events`.
 No existen: `plan.emit`, `task.assign`, `build.request`, `supervisor.alert`,
 `gate.report`, `apply_patch` (los diffs de OpenAI se traducen a `edit_file` en el adaptador),
 ni ninguna herramienta con punto en el nombre.
+
+## Estado fase 2
+
+Implementadas en `packages/agents/src/tools/` (los puertos los implementa el engine en
+`apps/engine/src/services/runs/environment.ts`): `read_file`, `write_file`, `edit_file`,
+`glob`, `grep`, `list_dir`, `bash`, `db_query`, `db_introspect`, `git_log`, `git_diff`,
+`image_find`, `submit_intent`, `submit_plan`, `submit_decision`, `submit_message`
+(`{text}`), `submit_report`, `submit_summary`. Detalles:
+
+- Las rutas son relativas a la raíz del proyecto (se acepta el prefijo `/workspace/`);
+  `.env*` nunca se escribe y solo se leen los `*.example`; ningún enlace simbólico escapa del
+  checkout. Una escritura fuera de `scope.write` devuelve `SCOPE_VIOLATION` al modelo con su
+  alcance y emite `scope.violation`.
+- `bash` corre `bash -lc` en `forja-verify-<id>` (cwd `/workspace`) y espera a que el
+  contenedor esté listo; salida 8 KB (cabeza + cola). La allowlist del fixer se comprueba por
+  segmento (`&&`, `||`, `;`, `|`) y rechaza sustitución de comandos.
+- `db_query` y `db_introspect` usan `psql` como `cms_ro` sobre `verify_<runId>`, dentro de
+  una transacción `READ ONLY` con `statement_timeout` de 10 s; 200 filas.
+- `git_diff` sin argumentos compara el checkout `run/` (incluidos ficheros nuevos) con la
+  versión de la que partió el run.
+- `submit_plan` aplica `validatePlan` y las reglas de la fase (roles `frontend`, `backend`,
+  `database`; ≤10 tareas; alcance no vacío). Un envío rechazado vuelve con la lista exacta.
+- Los esquemas JSON que ve el modelo se derivan del mismo esquema zod con el que se validan
+  los argumentos (`toJsonSchema`, sin dependencias).
+- Pendientes (fase 3): `http_probe`, `browser_*`, `image_optimize`, `svg_*`, `font_vendor`,
+  `contrast_check`, `seo_audit`, `git_merge`, `submit_design_review`, `submit_triage`,
+  `submit_review`, `request_rework`, `compose_validate`, `security_scan`, y el formato
+  SEARCH/REPLACE de `edit_file` para modelos `fast`/locales.
+

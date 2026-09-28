@@ -23,17 +23,25 @@ LLM_GROQ="false|"
 LLM_TOGETHER="false|"
 LLM_FIREWORKS="false|"
 LLM_OPENROUTER="false|"
+LLM_NVIDIA="false|"              # NVIDIA NIM (build.nvidia.com, clave nvapi-…); nivel gratuito ≈ 40 peticiones/min
 LLM_OLLAMA="false|"              # local; clave opcional
 LLM_LMSTUDIO="false|"
 LLM_VLLM="false|"
-# Opcionales por proveedor: LLM_<P>_BASE_URL, LLM_<P>_ORG, LLM_<P>_TIMEOUT_MS, LLM_<P>_MAX_CONCURRENCY,
+# Opcionales por proveedor: LLM_<P>_BASE_URL, LLM_<P>_ORG, LLM_<P>_TIMEOUT_MS (espera hasta el primer byte),
+# LLM_<P>_MAX_CONCURRENCY, LLM_<P>_RPM (peticiones por minuto; cola, nunca error),
 # LLM_<P>_EXTRA_MODELS='[{"id":"…","contextTokens":…,"maxOutputTokens":…}]'
+# LLM_NVIDIA_RPM=40                # defecto del catálogo; LLM_NVIDIA_TIMEOUT_MS=300000 por defecto (131 s al primer byte observados)
 # Forma separada (si ambas existen y discrepan, error de arranque): LLM_<P>_ENABLED, LLM_<P>_API_KEY
 # LLM_OLLAMA_BASE_URL=http://host.docker.internal:11434/v1
 
 # ───────────── Proveedores de imágenes · mismo formato ─────────────
 IMAGE_OPENAI="false|"  IMAGE_GOOGLE="false|"  IMAGE_FAL="false|"  IMAGE_REPLICATE="false|"  IMAGE_STABILITY="false|"
 STOCK_PEXELS="false|"  STOCK_PIXABAY="false|"  STOCK_UNSPLASH="false|"    # Unsplash: el adaptador cumple sus términos de descarga/atribución
+# true → nunca usar un modelo de generación de imágenes: buscar fotos con licencia abierta en la web
+# (STOCK_* activos, luego Openverse y Wikimedia Commons, sin clave). Acepta true/false/1/0/yes/no/on/off.
+# Es el valor por defecto de la instancia: el modal Settings de la UI puede sobrescribirlo (tabla
+# `settings`, clave images.mode) y gana hasta "Reset to .env" (02 §7, 05 §3).
+IMAGES_FROM_WEB_SEARCH=false
 
 # ───────────── Modelos por rol · "proveedor:modelo" · opcional (auto si falta) ─────────────
 # Roles: director designer brand imagery copywriter database backend frontend supervisor qa reviewer security docs fixer summarizer
@@ -104,6 +112,10 @@ ACME_DNS_PROVIDER=               # p. ej. cloudflare, route53, digitalocean (com
 # ACME_DNS_<PROVIDER>_*=         # credenciales según el proveedor (documentación de Traefik)
 TRAEFIK_DASHBOARD=false
 
+# Pruebas de integración del engine (nunca en producción)
+# FORJA_LLM_REPLAY_DIR=              # activa el proveedor record/replay sobre este directorio
+# FORJA_LLM_REPLAY_MODE=replay-or-fail # replay-or-fail | record | passthrough (ver packages/llm/src/replay)
+
 # Varios
 ALLOW_ENV_EXPORT=false
 NPM_ALLOWLIST_FILE=
@@ -127,7 +139,7 @@ Forja Engine 0.1.0
   roles       director → anthropic:claude-fable-5-1 [fallback anthropic:claude-opus-5-5]
               designer → anthropic:claude-opus-5-5 (auto: vision, frontier)
               fixer    → zai:glm-5.3-flash (auto: fast)
-  media       stock: none · generate: none → local placeholders
+  media       search: openverse, wikimedia (+ STOCK_* activos) · generate: none · IMAGES_FROM_WEB_SEARCH=false
   sandbox     docker 29.8.1 · runtime runc · egress internet · max active 5 · data dir check ok
   preview     http://<id>.forja.localhost (public) · publish http://<id>.apps.forja.localhost
   budgets     run $8 · project/month $60

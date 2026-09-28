@@ -67,4 +67,53 @@ describe.skipIf(!url)("PgStore (real Postgres)", () => {
     expect(await store.monthSpentUsd(new Date(0), "pg-sec")).toBe(0);
     expect(await store.listRuns("pg-sec", new Date(0))).toEqual([]);
   });
+
+  it("settings: upsert, read JSON back, delete", async () => {
+    await store.deleteSetting("test.key");
+    expect(await store.getSetting("test.key")).toBeNull();
+    await store.putSetting("test.key", "web-search");
+    await store.putSetting("test.key", { mode: "generate" });
+    expect(await store.getSetting("test.key")).toEqual({ mode: "generate" });
+    expect(await store.deleteSetting("test.key")).toBe(true);
+    expect(await store.deleteSetting("test.key")).toBe(false);
+  });
+
+  it("runs: one active per project, latest, events, ledger, versions, stale queries", async () => {
+    await store.insertProject({ id: "pg-run", label: "pg-run" });
+    const r1 = await store.insertRun({ projectId: "pg-run", prompt: "a", status: "received", startedAt: new Date(), budgetUsd: "8.0000" });
+    expect(r1).toMatchObject({ status: "received", spentUsd: "0.0000" });
+    expect(await store.insertRun({ projectId: "pg-run", prompt: "b" })).toBeNull();
+    expect((await store.listActiveRuns()).map((r) => r.id)).toContain(r1!.id);
+    await store.updateRun(r1!.id, { status: "done", intent: "tweak", finishedAt: new Date(Date.now() + 120_000), spentUsd: "0.2500" });
+    const r2 = await store.insertRun({ projectId: "pg-run", prompt: "c" });
+    expect(r2).not.toBeNull();
+    expect((await store.latestRun("pg-run"))?.id).toBe(r2!.id);
+    expect((await store.recentRunMinutes("tweak", 5))[0]).toBeGreaterThan(1.9);
+    expect(await store.monthSpentUsd(new Date(0), "pg-run")).toBeCloseTo(0.25);
+    const task = await store.insertTask({ runId: r2!.id, planTaskId: "t1", role: "frontend", scope: { write: ["src/**"] } });
+    await store.updateTask(task.id, { status: "done", turns: 3, report: { status: "done" } });
+    expect((await store.listTasks(r2!.id))[0]).toMatchObject({ status: "done", turns: 3 });
+    const s1 = await store.appendEvent({ runId: r2!.id, taskId: task.id, type: "task.started", payload: { taskId: "t1" } });
+    const s2 = await store.appendEvent({ runId: r2!.id, type: "run.phase", payload: { from: "received", to: "directing" } });
+    expect(s2).toBeGreaterThan(s1);
+    expect((await store.listEvents(r2!.id, s1, 10)).map((e) => e.type)).toEqual(["run.phase"]);
+    await store.insertLlmCall({ projectId: "pg-run", runId: r2!.id, taskId: task.id, role: "frontend", provider: "nvidia", model: "z-ai/glm-5.3", inputTokens: 10, outputTokens: 5, costUsd: "0.000000", outcome: "ok" });
+    await store.insertMediaCall({ projectId: "pg-run", runId: r2!.id, provider: "openverse", kind: "search", outcome: "ok" });
+    const v = await store.insertVersion({ id: "a".repeat(40), projectId: "pg-run", runId: r2!.id, tag: "v2", commitSha: "a".repeat(40), message: "m", checks: { gates: [] } });
+    expect(v.id).toBe("a".repeat(40));
+  });
+
+  it("messages: created_at strictly increasing per project under concurrency; version link", async () => {
+    await store.insertProject({ id: "pg-msg", label: "pg-msg" });
+    const writes = await Promise.all(
+      Array.from({ length: 20 }, (_, i) => store.appendMessage({ projectId: "pg-msg", author: i === 0 ? "user" : "agent", type: i === 0 ? "regular" : "building", text: `m${i}` })),
+    );
+    const times = writes.map((m) => m.createdAt.getTime()).sort((a, b) => a - b);
+    expect(new Set(times).size).toBe(20);
+    const listed = await store.listMessages("pg-msg");
+    expect(listed.map((m) => m.createdAt.getTime())).toEqual(times);
+    await store.insertVersion({ id: "b".repeat(40), projectId: "pg-msg", tag: "v1", commitSha: "b".repeat(40), message: "m" });
+    const withVersion = await store.appendMessage({ projectId: "pg-msg", author: "agent", type: "finished", text: "done", versionId: "b".repeat(40), secretKeysNeeded: { STRIPE_KEY: { isProvided: false, description: "d" } } });
+    expect(withVersion).toMatchObject({ versionId: "b".repeat(40), secretKeysNeeded: { STRIPE_KEY: { isProvided: false, description: "d" } } });
+  });
 });

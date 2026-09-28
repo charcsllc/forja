@@ -46,6 +46,7 @@ import { useVisualEditor } from "@/components/workspace/visual-editor/use-visual
 import { VisualEditorPanel } from "@/components/workspace/visual-editor/VisualEditorPanel";
 import { VisualChangesBar } from "@/components/workspace/visual-editor/VisualChangesBar";
 import { t as translate } from "@/i18n";
+import { SettingsButton } from "@/components/settings/SettingsButton";
 
 // Pick the correct development preview URL following the Totalum API docs:
 // use `developmentUrlFieldToUse` to decide between the live server URL and the
@@ -1473,6 +1474,8 @@ export default function WorkspacePage() {
             <button onClick={() => setOpenModal("secrets")} className={`flex size-8 items-center justify-center rounded-full transition-colors shrink-0 bb-hairline bg-surface-2 text-ink-3 hover:text-ink hover:bg-muted`} title={translate("workspace.secrets.title")}>
               <Key className="w-3.5 h-3.5" />
             </button>
+            {/* forja: engine-only instance settings; renders nothing with Totalum. */}
+            <SettingsButton className="bb-hairline bg-surface-2 [&_svg]:size-3.5" />
             {/*
               ⭐⭐ PUBLISH — the platform's control: the button, the dialog that says what
               publishing does (public address, ~3 minutes, 1 credit) and the custom-domain
@@ -1601,6 +1604,7 @@ export default function WorkspacePage() {
             </button>
             {popupMenu}
           </div>
+          <SettingsButton className="ml-auto" />
         </header>
 
         {/*
